@@ -28,7 +28,7 @@ public class EditorFrame extends JFrame{
 		c.setGreenBits(8);
 		c.setAlphaBits(8);
 		
-		Canvas jogl = new Canvas(500);
+		Canvas jogl = new Canvas();
 		this.canvas = new GLCanvas(c);
 		this.getContentPane().add(canvas,BorderLayout.CENTER);
 		canvas.addGLEventListener(jogl);        

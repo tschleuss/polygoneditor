@@ -12,8 +12,9 @@ import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLEventListener;
 import javax.media.opengl.glu.GLU;
 
-import org.furb.cg.model.GLBezier;
-import org.furb.cg.model.GLPoint;
+import org.furb.cg.controller.Bezier;
+import org.furb.cg.controller.Poligono;
+import org.furb.cg.util.Base;
 
 import com.sun.opengl.util.GLUT;
 
@@ -27,18 +28,21 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	private float workspaceWidth;
 	private float espaceRightTop;
 	private float espaceLeftBottom;
-	
-	private GLPoint selected;
-	private GLBezier bezierTool;
-	
+
 	private int screenSize;
-	private int glFont;
+	private Poligono poligonoAtivo;
 	
-	private boolean configPointGroup = true;	
-	
-	public Canvas(int screenSize)
+	public Canvas()
 	{
-		this.screenSize = screenSize;
+		this.workspaceWidth = 30.0f;
+		this.espaceRightTop = 40.0f;
+		this.espaceLeftBottom = -10.0f;
+		this.screenSize = 500;
+		
+		Base.getInstace().setScreenSize(screenSize);
+		Base.getInstace().setWorkspaceWidth(workspaceWidth);
+		Base.getInstace().setEspaceRightTop(espaceRightTop);
+		Base.getInstace().setEspaceLeftBottom(espaceLeftBottom);
 	}
 	
 	public void init(GLAutoDrawable drawable) {
@@ -51,18 +55,14 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 
 		gl.glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 		
-		workspaceWidth = 30.0f;
-		espaceRightTop = 40.0f;
-		espaceLeftBottom = -10.0f;
-		
-		glFont = GLUT.BITMAP_HELVETICA_10;
-		
-		bezierTool = new GLBezier();
-		selected = null;
+		//Poligono ativo
+		this.poligonoAtivo = new Bezier();
+		this.poligonoAtivo.init(gl, glu, glut, glDrawable);
 	}
 
 
-	public void display(GLAutoDrawable arg0) {
+	public void display(GLAutoDrawable drawable) 
+	{
 		
 		 gl.glClear(GL.GL_COLOR_BUFFER_BIT);
 		 gl.glMatrixMode(GL.GL_MODELVIEW);
@@ -74,201 +74,70 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		 // configurar cor de desenho (valores r, g, b)
 		 gl.glColor3f(0.0f, 0.0f, 0.0f);
 		 
-		 
 		 //linhas verticais e horizontais
 		 gl.glBegin(GL.GL_LINES);
-		 
-		 	//Y
+
 		 	gl.glVertex2f(0, 0);
 		 	gl.glVertex2f(0, workspaceWidth);
 
-		 	//seta Y
 		 	gl.glVertex2f(-1, workspaceWidth-1);
 		 	gl.glVertex2f(0, workspaceWidth);
 		 	gl.glVertex2f(1, workspaceWidth-1);
 		 	gl.glVertex2f(0, workspaceWidth);
-		 	
-		 	//X
+
 		 	gl.glVertex2f(0, 0);
 		 	gl.glVertex2f(workspaceWidth, 0);
-		 	
-		 	//seta X
-		 	//seta
+
 		 	gl.glVertex2f(workspaceWidth-1, -1);
 		 	gl.glVertex2f(workspaceWidth, 0);
 		 	gl.glVertex2f(workspaceWidth-1, 1);
 		 	gl.glVertex2f(workspaceWidth, 0);
 		 gl.glEnd();
 		
-		 displayMessages();
-		 
-		 if(bezierTool.getPointsCount() > 0)
-			 bezierTool.draw(glDrawable);
+		 //Chama o metodo draw do poligono ativo
+		 poligonoAtivo.draw();
 		 
 		 gl.glFlush();
-		 
 	}
 	
-	private void displayMessages() {
-		 
-		String selecteGroup = String.valueOf(bezierTool.getPointGroupSelected());
-		String selectedPoint = String.valueOf(bezierTool.getPointSelected());
-		
-		if(selecteGroup.equals("-1"))
-			selecteGroup = "NENHUM";
-		
-		if(selectedPoint.equals("-1"))
-			selectedPoint = "NENHUM";
-		
-		 //se está configurando o grupo, seta as letras como vermelhas
-		 if(configPointGroup)
-			 gl.glColor3f(1.0f, 0.0f, 0.0f);
-		 
-		 gl.glRasterPos2f(0,-2);
-		 glut.glutBitmapString(glFont, "GRUPO DE PONTOS SELECIONADO: " + selecteGroup);
-
-		 //se está configurando o ponto, seta as letras como vermelhas
-		 if(!configPointGroup){
-			 gl.glColor3f(1.0f, 0.0f, 0.0f);
-		 }else
-		 {
-			 gl.glColor3f(0.0f, 0.0f, 0.0f);
-		 }
-
-		 gl.glRasterPos2f(0,-4);
-		 glut.glutBitmapString(glFont, "PONTO SELECIONADO: " + selectedPoint);
-		 
-		 gl.glColor3f(0.0f, 0.0f, 0.0f);
-		 gl.glRasterPos2f(0,-7);
-		 glut.glutBitmapString(glFont, "PRESSIONE 'ESPACO' PARA ALTERNAR ENTRE GRUPO E PONTO");
-		 
-		 gl.glRasterPos2f(-5,-9);
-		 glut.glutBitmapString(glFont, "PRESSIONE O BOTÃO DIRETO PARA EDITAR A POSIÇÃO DO PONTO SELECIONADO");
-	}
-	
-	public void keyPressed(KeyEvent key) {
-		
-		int selectedPoint;
-		
-		switch(key.getKeyChar())
-		{
-			case ' ':
-				
-				configPointGroup = !configPointGroup;
-				glDrawable.display();
-				break;
-				
-			case '0':
-				bezierTool.setPointGroupSelected(-1);
-				bezierTool.setPointSelected(-1);
-				glDrawable.display();
-				break;
-				
-			case '1':
-			case '2':
-			case '3':
-			case '4':
-
-				selectedPoint = Integer.parseInt(String.valueOf(key.getKeyChar())); 
-				
-				if(configPointGroup){
-					
-					bezierTool.setPointGroupSelected(selectedPoint);
-				}
-				else
-				{
-					bezierTool.setPointSelected(selectedPoint);
-				}
-				
-				glDrawable.display();
-
-				break;
-			default: {
-				
-				try {
-					
-					selectedPoint = Integer.parseInt(String.valueOf(key.getKeyChar())); 
-					
-					if(configPointGroup){
-						bezierTool.setPointGroupSelected(selectedPoint);
-					}
-					
-					glDrawable.display();;
-					
-				} catch (Exception e) {
-					//Exception
-				}
-			}
-		}
-	}
-	
-	private int calcX(int baseX){
-		float maxX = 480f;
-		return (int) (baseX * (50f/maxX)) - 9;
-	}
-	
-	private int calcY(int baseY){
-		float maxY = screenSize - espaceRightTop;
-		return (int) (40 - (baseY * (50f/maxY)));
+	public void keyPressed(KeyEvent e) {
+		this.poligonoAtivo.keyPressed(e);
 	}
 	
 	public void mousePressed(MouseEvent e) {
-		
-	  int x = calcX(e.getX());
-	  int y = calcY(e.getY());
-		
-	  //botao direito
-	  if (e.getButton() == MouseEvent.BUTTON3)
-	  {	
-		  selected = bezierTool.getSelectedPoint();
-		  if(selected != null){
-			  selected.setX(x);
-			  selected.setY(y);
-		  }
-	  }	
-	  //botao esquerdo
-	  else if( e.getButton() == MouseEvent.BUTTON1 )
-	  {
-			bezierTool.addPoint(x, y);
-			
-			if(bezierTool.getPointsCount() == 1){
-				bezierTool.setPointGroupSelected(1);
-				bezierTool.setPointSelected(1);
-			}
-	  }
-	  
-	  glDrawable.display();
+		this.poligonoAtivo.mousePressed(e);
 	}
 	
 	public void mouseDragged(MouseEvent e) {
-		return;
+		this.poligonoAtivo.mouseDragged(e);
 	}
 	
 	public void mouseReleased(MouseEvent e) {
-		return;
+		this.poligonoAtivo.mouseReleased(e);
 	}
 	
-	public void mouseMoved(MouseEvent arg0) {
-		return;
+	public void mouseMoved(MouseEvent e) {
+		this.poligonoAtivo.mouseMoved(e);
 	}
 	
-	public void keyReleased(KeyEvent arg0) {
-		return;
+	public void keyReleased(KeyEvent e) {
+		this.poligonoAtivo.keyReleased(e);
 	}
 
-	public void keyTyped(KeyEvent arg0) {
-		return;
-	}
-	public void mouseClicked(MouseEvent arg0) {
-		return;
+	public void keyTyped(KeyEvent e) {
+		this.poligonoAtivo.keyTyped(e);
 	}
 	
-	public void mouseEntered(MouseEvent arg0) {
-		return;
+	public void mouseClicked(MouseEvent e) {
+		this.poligonoAtivo.mouseClicked(e);
+	}
+	
+	public void mouseEntered(MouseEvent e) {
+		this.poligonoAtivo.mouseEntered(e);
 	}
 
-	public void mouseExited(MouseEvent arg0) {
-		return;
+	public void mouseExited(MouseEvent e) {
+		this.poligonoAtivo.mouseExited(e);
 	}
 	
 	public void displayChanged(GLAutoDrawable arg0, boolean arg1, boolean arg2) {
