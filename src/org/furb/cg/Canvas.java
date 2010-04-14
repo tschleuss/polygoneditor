@@ -18,6 +18,7 @@ import org.furb.cg.model.GLPoint;
 import com.sun.opengl.util.GLUT;
 
 public class Canvas implements GLEventListener, KeyListener, MouseMotionListener, MouseListener {
+	
 	private GL gl;
 	private GLU glu;
 	private GLUT glut;
@@ -62,6 +63,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 
 
 	public void display(GLAutoDrawable arg0) {
+		
 		 gl.glClear(GL.GL_COLOR_BUFFER_BIT);
 		 gl.glMatrixMode(GL.GL_MODELVIEW);
 		 gl.glLoadIdentity();
@@ -138,7 +140,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		 
 		 gl.glColor3f(0.0f, 0.0f, 0.0f);
 		 gl.glRasterPos2f(0,-7);
-		 glut.glutBitmapString(glFont, "PRESSIONE 'ESPAÇO' PARA ALTERNAR ENTRE GRUPO E PONTO");
+		 glut.glutBitmapString(glFont, "PRESSIONE 'ESPACO' PARA ALTERNAR ENTRE GRUPO E PONTO");
 		 
 		 gl.glRasterPos2f(-5,-9);
 		 glut.glutBitmapString(glFont, "PRESSIONE O BOTÃO DIRETO PARA EDITAR A POSIÇÃO DO PONTO SELECIONADO");
@@ -181,14 +183,22 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 				glDrawable.display();
 
 				break;
-			default:
-				selectedPoint = Integer.parseInt(String.valueOf(key.getKeyChar())); 
+			default: {
 				
-				if(configPointGroup){
+				try {
 					
-					bezierTool.setPointGroupSelected(selectedPoint);
+					selectedPoint = Integer.parseInt(String.valueOf(key.getKeyChar())); 
+					
+					if(configPointGroup){
+						bezierTool.setPointGroupSelected(selectedPoint);
+					}
+					
+					glDrawable.display();;
+					
+				} catch (Exception e) {
+					//Exception
 				}
-				glDrawable.display();;
+			}
 		}
 	}
 	
@@ -207,7 +217,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	  int x = calcX(e.getX());
 	  int y = calcY(e.getY());
 		
-	  //botão direito
+	  //botao direito
 	  if (e.getButton() == MouseEvent.BUTTON3)
 	  {	
 		  selected = bezierTool.getSelectedPoint();
@@ -216,8 +226,8 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 			  selected.setY(y);
 		  }
 	  }	
-	  //botão esquerdo
-	  else
+	  //botao esquerdo
+	  else if( e.getButton() == MouseEvent.BUTTON1 )
 	  {
 			bezierTool.addPoint(x, y);
 			
@@ -228,37 +238,44 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	  }
 	  
 	  glDrawable.display();
-
 	}
 	
 	public void mouseDragged(MouseEvent e) {
-
+		return;
 	}
 	
 	public void mouseReleased(MouseEvent e) {
+		return;
 	}
 	
 	public void mouseMoved(MouseEvent arg0) {
+		return;
 	}
 	
 	public void keyReleased(KeyEvent arg0) {
+		return;
 	}
 
 	public void keyTyped(KeyEvent arg0) {
+		return;
 	}
 	public void mouseClicked(MouseEvent arg0) {
+		return;
 	}
 	
 	public void mouseEntered(MouseEvent arg0) {
+		return;
 	}
 
 	public void mouseExited(MouseEvent arg0) {
+		return;
 	}
 	
 	public void displayChanged(GLAutoDrawable arg0, boolean arg1, boolean arg2) {
+		return;
 	}
 
-	public void reshape(GLAutoDrawable arg0, int arg1, int arg2, int arg3, int arg4) {	
+	public void reshape(GLAutoDrawable arg0, int arg1, int arg2, int arg3, int arg4) {
+		return;
 	}
-	
 }

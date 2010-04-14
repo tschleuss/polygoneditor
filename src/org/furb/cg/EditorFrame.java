@@ -9,46 +9,35 @@ import javax.swing.WindowConstants;
 
 
 public class EditorFrame extends JFrame{
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	static GLCanvas canvas;
+
+	private static final long serialVersionUID = 3172688540921699213L;
+	private GLCanvas canvas = null;
 	
 	public EditorFrame() {
-
-		super("PolygonEditor");
-		
-		int screenSize = 500;
-		
-		setBounds(50,100,screenSize,screenSize); 
-
-		Canvas renderer = new Canvas(screenSize);
-		
-		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		getContentPane().setLayout(new BorderLayout());
-
-		GLCapabilities glCaps = new GLCapabilities();
-		glCaps.setRedBits(8);
-		glCaps.setBlueBits(8);
-		glCaps.setGreenBits(8);
-		glCaps.setAlphaBits(8); 
-
-		canvas = new GLCanvas(glCaps);
-		add(getCanvas(),BorderLayout.CENTER);
-		
-		canvas.addGLEventListener(renderer);        
-		canvas.addKeyListener(renderer);
-		canvas.addMouseListener(renderer);
-		canvas.addMouseMotionListener(renderer);
-		
+		super.setTitle("Programa");
+		super.setBounds(50, 100, 500, 500);
+		super.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		super.getContentPane().setLayout(new BorderLayout());
+		this.init();
 	}
-
-	public void setCanvas(GLCanvas canvas) {
-		this.canvas = canvas;
+	
+	private void init() {
+		GLCapabilities c = new GLCapabilities();
+		c.setRedBits(8);
+		c.setBlueBits(8);
+		c.setGreenBits(8);
+		c.setAlphaBits(8);
+		
+		Canvas jogl = new Canvas(500);
+		this.canvas = new GLCanvas(c);
+		this.getContentPane().add(canvas,BorderLayout.CENTER);
+		canvas.addGLEventListener(jogl);        
+		canvas.addKeyListener(jogl);
+		canvas.addMouseListener(jogl);
+		canvas.addMouseMotionListener(jogl);
+		canvas.requestFocus();		
 	}
-
+	
 	public GLCanvas getCanvas() {
 		return canvas;
 	}
