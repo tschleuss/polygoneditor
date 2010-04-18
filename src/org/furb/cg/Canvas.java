@@ -129,7 +129,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 
 			if( poligon.getMode() == Mode.SPLINE ) 
 			{
-				//desenha spline
+				this.drawSpline(poligon);
 			}
 			else
 			{
@@ -155,6 +155,88 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		
 		this.drawLinePreviw();
 		this.drawCirclePreview();
+	}
+	
+	/**
+	 * Metodo utilizado para desenhar
+	 * a spline.
+	 */
+	private void drawSpline(Poligono poligon)
+	{
+		gl.glColor3f(0.0f, 0.0f, 1.0f);
+		gl.glPointSize(3.0f);
+		gl.glBegin(GL.GL_POINTS);
+		
+		for( float[] point : poligon.getPontos() )
+		{
+			gl.glVertex2f(point[0], point[1]);
+		}
+		
+		gl.glEnd();
+		
+		if( poligon.getPontos().size() >= 4 )
+		{
+			gl.glBegin(GL.GL_LINE_STRIP);
+			
+			float[] point = this.evaluateSplinePoint(poligon, 0, 0);
+			gl.glVertex2f(point[0], point[1]);
+			
+			for( int i = 0; i < poligon.getPontos().size() - 3; i+= 3)
+			{
+				for( int j = 1; j <= 10; j++ )
+				{
+					float[] newPoint = this.evaluateSplinePoint(poligon, i, ((float)j/10));
+					gl.glVertex2f(newPoint[0], newPoint[1]);
+				}
+			}
+			
+			gl.glEnd();
+		}
+	}
+	
+	private float[] evaluateSplinePoint(Poligono poligon, int numArco, float t) 
+	{
+	    float x = 0;
+	    float y = 0;
+	    float result;
+	    float[] points = new float[2];
+	    
+	    for (int pontoArco = 0; pontoArco <= 3; pontoArco++ )
+	    {
+	    	result = calculeBezier(pontoArco,t);
+	    	points = poligon.getPontos().get(numArco+pontoArco);
+	    	
+	    	x += result * points[0];
+	      	y += result * points[1];
+	    }
+	    
+	    return new float[]{ x , y };
+	}
+	
+	private float calculeBezier(int i, float t) 
+	{
+		double base = (1 - t);
+	
+		switch (i) 
+		{
+			case 0: {
+				return (float) Math.pow(base, 3);
+			}
+			
+			case 1: {
+				return (float)(3 * t * Math.pow(base, 2));
+			}
+			
+			case 2: {
+				return (float)(3 * Math.pow(t, 2) * base);
+			}
+			
+			case 3: {
+				return (float)Math.pow(t, 3);
+			}
+		}
+		
+		return 0;
 	}
 	
 	/**
@@ -399,6 +481,39 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 				linha.getPontos().add(pointA);
 				linha.getPontos().add(pointB);
 			}
+			else if ( this.getMode() == Mode.CLOSE_POLYGON)
+			{
+				if( atual.getPontos().size() == 1 ) 
+				{
+					float[] pointA = atual.getPontos().get( atual.getPontos().size() -1 );
+					float[] pointB = new float[]{ pointX , pointY };
+					linha = new Poligono();
+					linha.getPontos().add(pointA);
+					linha.getPontos().add(pointB);
+				}
+				else if( atual.getPontos().size() == 2 )
+				{
+					float[] pointA = atual.getPontos().get(0);
+					float[] pointB = atual.getPontos().get(1);
+					float[] pointC = new float[]{ pointX , pointY };
+					linha = new Poligono();
+					linha.getPontos().add(pointA);
+					linha.getPontos().add(pointB);
+					linha.getPontos().add(pointC);
+				}
+				else 
+				{
+					float[] pointA = atual.getPontos().get(0);
+					float[] pointB = atual.getPontos().get(1);
+					float[] pointC = atual.getPontos().get( atual.getPontos().size() -1 );
+					float[] pointD = new float[]{ pointX , pointY };
+					linha = new Poligono();
+					linha.getPontos().add(pointA);
+					linha.getPontos().add(pointB);
+					linha.getPontos().add(pointC);
+					linha.getPontos().add(pointD);
+				}
+			}
 			else if ( this.getMode() == Mode.CIRCLE ) 
 			{
 				if( atual.getPontos().size() == 1 )
@@ -415,11 +530,30 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		}
 	}
 	
-	public void keyPressed(KeyEvent e) {
-		return;
+	public void mouseDragged(MouseEvent e) 
+	{
+		final float pointX = Base.getInstace().normalizarX( Float.valueOf( e.getX() ) );
+		final float pointY = Base.getInstace().normalizarY( Float.valueOf( e.getY() ) );
+		
+		final MessageFormat mf = new MessageFormat("({0},{1})");
+		this.getWindow().setStatus( mf.format( new Object[]{ pointX , pointY } ) );
+		
+		if ( this.getMode() == Mode.CIRCLE ) 
+		{
+			if( atual != null && atual.getPontos().size() == 1 )
+			{
+				float[] pointA = new float[]{ pointX , pointY };
+				linha = new Poligono();
+				linha.getPontos().add( pointA );
+			}
+		}
+		
+		if( glDrawable != null ) {
+			glDrawable.display();
+		}
 	}
 	
-	public void mouseDragged(MouseEvent e) {
+	public void keyPressed(KeyEvent e) {
 		return;
 	}
 	
@@ -474,6 +608,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		}
 		
 		this.mode = mode;
+		this.cancelSelection();
 	}
 
 	public Color getColor() {
