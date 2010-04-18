@@ -1,10 +1,21 @@
 package org.furb.cg;
 
+import static java.lang.Math.PI;
+import static java.lang.Math.cos;
+import static java.lang.Math.floor;
+import static java.lang.Math.pow;
+import static java.lang.Math.sin;
+import static java.lang.Math.sqrt;
+
+import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.media.opengl.DebugGL;
 import javax.media.opengl.GL;
@@ -12,39 +23,61 @@ import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLEventListener;
 import javax.media.opengl.glu.GLU;
 
-import org.furb.cg.controller.Bezier;
-import org.furb.cg.controller.Poligono;
+import org.furb.cg.model.Poligono;
 import org.furb.cg.util.Base;
+import org.furb.cg.util.Mode;
 
 import com.sun.opengl.util.GLUT;
 
+/**
+ * Classe canvas responsavel por todo o
+ * processo de renderizacao da tela, atualizacao
+ * das variaveis, intercaptacao dos movimentos
+ * do mouse, etc.
+ * @author Thyago Schleuss
+ * @author Luiz Diego Aquino
+ * @since 17/04/2010
+ */
 public class Canvas implements GLEventListener, KeyListener, MouseMotionListener, MouseListener {
 	
-	private GL gl;
-	private GLU glu;
-	private GLUT glut;
-	private GLAutoDrawable glDrawable;
+	private GL				gl			= null;
+	private GLU				glu			= null;
+	private GLUT			glut 		= null;
+	private GLAutoDrawable	glDrawable	= null;
+	private EditorFrame		window		= null;
+	private Mode			mode		= null;
+	private Color			color		= Color.BLACK;
 
-	private float workspaceWidth;
-	private float espaceRightTop;
-	private float espaceLeftBottom;
-
-	private int screenSize;
-	private Poligono poligonoAtivo;
+	private float			left;
+	private float			right;
+	private float			bottom;
+	private float			top;
+	
+	private List<Poligono>	poligonos			= new ArrayList<Poligono>();
+	private List<Poligono>	selecionados		= new ArrayList<Poligono>();
+	private Poligono		atual				= null;
+	private Poligono		linha				= null;
+	private float 			scale				= 1.0f;
 	
 	public Canvas()
 	{
-		this.workspaceWidth = 30.0f;
-		this.espaceRightTop = 40.0f;
-		this.espaceLeftBottom = -10.0f;
-		this.screenSize = 500;
+		left	=  0.0f;
+		right	=  1000.0f;
+		bottom	=  0.0f;
+		top		=  600.0f;
 		
-		Base.getInstace().setScreenSize(screenSize);
-		Base.getInstace().setWorkspaceWidth(workspaceWidth);
-		Base.getInstace().setEspaceRightTop(espaceRightTop);
-		Base.getInstace().setEspaceLeftBottom(espaceLeftBottom);
+		Base.getInstace().setLeft(left);
+		Base.getInstace().setRight(right);
+		Base.getInstace().setBottom(bottom);
+		Base.getInstace().setTop(top);
 	}
 	
+	/**
+	 * Metodo inicial chamado para instanciar
+	 * as principais classes utilizadas pelo
+	 * JOGL para poder desenha os elementos
+	 * na tela.
+	 */
 	public void init(GLAutoDrawable drawable) {
 		
 		glDrawable = drawable;
@@ -54,97 +87,400 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		glDrawable.setGL(new DebugGL(gl));
 
 		gl.glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
-		
-		//Poligono ativo
-		this.poligonoAtivo = new Bezier();
-		this.poligonoAtivo.init(gl, glu, glut, glDrawable);
 	}
 
-
+	/**
+	 * Metodo chamado pelo listener do JOGL
+	 * ou por algum outro metodo, para redesenhar
+	 * todos os elementos na tela
+	 */
 	public void display(GLAutoDrawable drawable) 
 	{
-		
 		 gl.glClear(GL.GL_COLOR_BUFFER_BIT);
 		 gl.glMatrixMode(GL.GL_MODELVIEW);
 		 gl.glLoadIdentity();
 
-		 // configurar window
-		 glu.gluOrtho2D( espaceLeftBottom,  espaceRightTop,  espaceLeftBottom,  espaceRightTop);
-
-		 // configurar cor de desenho (valores r, g, b)
+		 glu.gluOrtho2D(left * scale, right * scale, bottom * scale, top * scale);
 		 gl.glColor3f(0.0f, 0.0f, 0.0f);
-		 
-		 //linhas verticais e horizontais
-		 gl.glBegin(GL.GL_LINES);
 
-		 	gl.glVertex2f(0, 0);
-		 	gl.glVertex2f(0, workspaceWidth);
-
-		 	gl.glVertex2f(-1, workspaceWidth-1);
-		 	gl.glVertex2f(0, workspaceWidth);
-		 	gl.glVertex2f(1, workspaceWidth-1);
-		 	gl.glVertex2f(0, workspaceWidth);
-
-		 	gl.glVertex2f(0, 0);
-		 	gl.glVertex2f(workspaceWidth, 0);
-
-		 	gl.glVertex2f(workspaceWidth-1, -1);
-		 	gl.glVertex2f(workspaceWidth, 0);
-		 	gl.glVertex2f(workspaceWidth-1, 1);
-		 	gl.glVertex2f(workspaceWidth, 0);
-		 gl.glEnd();
-		
-		 //Chama o metodo draw do poligono ativo
-		 poligonoAtivo.draw();
+		 //Desenha tudo
+		 this.drawPoligons();
 		 
 		 gl.glFlush();
 	}
 	
-	public void keyPressed(KeyEvent e) {
-		this.poligonoAtivo.keyPressed(e);
+	/**
+	 * Desenha todos os poligonos na tela
+	 * de acordo com os Modos ativos, 
+	 * as cores setadas, etc.
+	 */
+	private void drawPoligons()
+	{
+		Color color = this.getColor();
+		
+		for( Poligono poligon : poligonos )
+		{
+			//Seta o cor do poligono a ser renderizado
+			color = poligon.getColor();
+			final float red	= color.getRed()   / 255.0f;
+			final float gre	= color.getGreen() / 255.0f;
+			final float blu = color.getBlue()  / 255.0f;
+			gl.glColor3f(red,gre,blu);
+
+			if( poligon.getMode() == Mode.SPLINE ) 
+			{
+				//desenha spline
+			}
+			else
+			{
+				if( poligon.getMode() == Mode.CLOSE_POLYGON)
+				{
+					gl.glBegin(GL.GL_LINE_LOOP);
+				}
+				else
+				{
+					gl.glBegin(GL.GL_LINE_STRIP);
+				}
+				
+				for( float[] pontos : poligon.getPontos() )
+				{
+					final float pontoX = pontos[0];
+					final float pontoY = pontos[1];
+					gl.glVertex2f(pontoX, pontoY);
+				}
+				
+				gl.glEnd();
+			}
+		}
+		
+		this.drawLinePreviw();
+		this.drawCirclePreview();
 	}
 	
-	public void mousePressed(MouseEvent e) {
-		this.poligonoAtivo.mousePressed(e);
+	/**
+	 * Desenha o preview da linha enquanto
+	 * o usuario move o mouse.
+	 */
+	private void drawLinePreviw()
+	{
+		if( linha != null )
+		{
+			gl.glColor3f(0.0f, 0.0f, 1.0f);
+			gl.glBegin(GL.GL_LINE_LOOP);
+			
+			for( float[] point : linha.getPontos() )
+			{
+				gl.glVertex2f(point[0], point[1]);
+			}
+			
+			gl.glEnd();
+		}
+	}
+	
+	/**
+	 * Desenha o preview do circulo enquanto
+	 * o usuario move o mouse
+	 */
+	private void drawCirclePreview()
+	{
+		if( atual != null )
+		{
+			if( !atual.getPontos().isEmpty() && atual.getMode() == Mode.CIRCLE ) 
+			{
+				if( linha != null && !linha.getPontos().isEmpty() ) 
+				{
+					Poligono poligon = new Poligono();
+					poligon.getPontos().add( atual.getPontos().get(0) );
+					poligon.getPontos().add( linha.getPontos().get(0) );
+					this.drawCircle(poligon);
+					
+					gl.glBegin(GL.GL_LINE_STRIP);
+					
+					for( float[] point : poligon.getPontos() ) { 
+						gl.glVertex2d( point[0], point[1] );	
+					}
+					
+					gl.glEnd();
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Metodo utilizado para desenhar um circulo
+	 * na tela do usuario
+	 * @param poligon
+	 */
+	private void drawCircle(Poligono poligon) 
+	{
+		float[] origem	= poligon.getPontos().get(0);
+		float[] raio	= poligon.getPontos().get(1);
+		float radius	= Float.valueOf( String.valueOf( floor( distance(origem, raio) ) ) );
+		
+		poligon.getPontos().clear();
+		
+		float angle   	= 	0.0f;
+		float vectorY1	=	origem[1] + radius;
+		float vectorX1	=	origem[0];
+		float vectorX;
+		float vectorY;
+
+		for(angle = 0.0f; angle <= (2.0f * PI); angle += 0.01f ) 
+		{		
+			vectorX = origem[0] + (radius * (float)sin((double)angle));
+			vectorY = origem[1] + (radius * (float)cos((double)angle));		
+			poligon.getPontos().add( new float[] { vectorX1 , vectorY1 } );
+			poligon.updateBoundBox();
+			vectorY1 = vectorY;
+			vectorX1 = vectorX;			
+		}
+	}
+	
+	/**
+	 * Formula usada para calcular a distancia
+	 * entre dois pontos.
+	 * @param p1
+	 * @param p2
+	 * @return
+	 */
+	private float distance(float[] p1, float[] p2) 
+	{
+		final float xCalc = Float.valueOf( String.valueOf( pow((p2[0] - p1[0]),2) ) );
+		final float yCalc = Float.valueOf( String.valueOf( pow((p2[1] - p1[1]),2) ) );
+		return Float.valueOf( String.valueOf( sqrt( xCalc + yCalc ) ) );
+	}
+	
+	/**
+	 * Adiciona um ponto na lista de poligonos
+	 * atualizando a boundbox do poligono.
+	 * @param x
+	 * @param y
+	 */
+	private void addPoint(float x, float y)
+	{
+		if( atual == null ) {
+			this.addPoligon();
+		}
+		
+		atual.setColor( this.getColor() );
+		atual.getPontos().add( new float[]{ x, y } );
+		atual.updateBoundBox();
+		
+		//Se clicou novamente e for o modo circulo
+		if( atual.getMode() == Mode.CIRCLE )
+		{
+			if( atual.getPontos().size() == 2 )
+			{
+				this.drawCircle(atual);
+				this.cancelSelection();
+			}
+		}
+	}
+	
+	/**
+	 * Finaliza as variaveis, criando assim
+	 * um novo "documento" com a tela limpa
+	 * sem ponto adicionados.
+	 */
+	public void newDocument()
+	{
+		if( poligonos != null ) 
+		{
+			poligonos.clear();
+		}
+		
+		scale	= 1.0f;
+		atual	= null;
+		mode	= Mode.SELECTION;
+		
+		glDrawable.display();
+	}
+	
+	/**
+	 * Metodo utilizado para adicionar
+	 * um novo poligono
+	 */
+	private void addPoligon() 
+	{
+		if( atual != null ) 
+		{
+			selecionados.clear();
+			selecionados.add(atual);
+		}
+		
+		atual = new Poligono();
+		atual.setMode( this.getMode() );
+		poligonos.add(atual);
+	}
+	
+	/**
+	 * Metodo chamado para cancelar a selecao
+	 * de um objeto
+	 */
+	public void cancelSelection() 
+	{
+		linha	= null;
+		atual	= null;
+	}
+	
+	/**
+	 * Metodo utilizado para realizar
+	 * o efeito de incremento do zoom
+	 */
+	public void zoomIn()
+	{
+		if( scale > 0.0 ) {
+			scale -= 0.05;
+		}
+		
+		glDrawable.display();
+	}
+
+	/**
+	 * Metodo utilizado para realizar
+	 * o efeito de decremento do zoom
+	 */
+	public void zoomOut()
+	{
+		if( scale < 100.0 ) {
+			scale += 0.05;
+		}
+		
+		glDrawable.display();
+	}
+	
+	/**
+	 * Metodo chamado pelo listener quando o
+	 * usuario pressionar um botao do mouse.
+	 */
+	public void mousePressed(MouseEvent e)
+	{
+		if( e.getButton() == MouseEvent.BUTTON1 ) 
+		{
+			if( this.getMode() == Mode.SELECTION ) 
+			{
+				//Selecao
+			}
+			else
+			{
+				//Verificar selecao ou adicionar ponto
+				final float pointX = Base.getInstace().normalizarX( Float.valueOf( e.getX() ) );
+				final float pointY = Base.getInstace().normalizarY( Float.valueOf( e.getY() ) );
+				this.addPoint(pointX, pointY);	
+			}
+		} 
+		else if ( e.getButton() == MouseEvent.BUTTON3 ) 
+		{
+			cancelSelection();
+		}
+		
+		glDrawable.display();
+	}
+	
+	/**
+	 * Metodo chamado pelo listener quando o
+	 * usuario mover o mouse.
+	 */
+	public void mouseMoved(MouseEvent e) 
+	{
+		final float pointX = Base.getInstace().normalizarX( Float.valueOf( e.getX() ) );
+		final float pointY = Base.getInstace().normalizarY( Float.valueOf( e.getY() ) );
+		
+		final MessageFormat mf = new MessageFormat("({0},{1})");
+		this.getWindow().setStatus( mf.format( new Object[]{ pointX , pointY } ) );
+		
+		if( atual != null && !atual.getPontos().isEmpty() )
+		{
+			if( this.getMode() == Mode.OPEN_POLYGON )
+			{
+				float[] pointA = atual.getPontos().get( atual.getPontos().size() -1 );
+				float[] pointB = new float[]{ pointX , pointY };
+				linha = new Poligono();
+				linha.getPontos().add(pointA);
+				linha.getPontos().add(pointB);
+			}
+			else if ( this.getMode() == Mode.CIRCLE ) 
+			{
+				if( atual.getPontos().size() == 1 )
+				{
+					float[] pointA = new float[]{ pointX , pointY };
+					linha = new Poligono();
+					linha.getPontos().add( pointA );
+				}
+			}
+		}
+		
+		if( glDrawable != null ) {
+			glDrawable.display();
+		}
+	}
+	
+	public void keyPressed(KeyEvent e) {
+		return;
 	}
 	
 	public void mouseDragged(MouseEvent e) {
-		this.poligonoAtivo.mouseDragged(e);
+		return;
 	}
 	
 	public void mouseReleased(MouseEvent e) {
-		this.poligonoAtivo.mouseReleased(e);
-	}
-	
-	public void mouseMoved(MouseEvent e) {
-		this.poligonoAtivo.mouseMoved(e);
+		return;
 	}
 	
 	public void keyReleased(KeyEvent e) {
-		this.poligonoAtivo.keyReleased(e);
+		return;
 	}
 
 	public void keyTyped(KeyEvent e) {
-		this.poligonoAtivo.keyTyped(e);
+		return;
 	}
 	
 	public void mouseClicked(MouseEvent e) {
-		this.poligonoAtivo.mouseClicked(e);
+		return;
 	}
 	
 	public void mouseEntered(MouseEvent e) {
-		this.poligonoAtivo.mouseEntered(e);
+		return;
 	}
 
 	public void mouseExited(MouseEvent e) {
-		this.poligonoAtivo.mouseExited(e);
+		return;
 	}
 	
-	public void displayChanged(GLAutoDrawable arg0, boolean arg1, boolean arg2) {
+	public void displayChanged(GLAutoDrawable glDrawable, boolean arg1, boolean arg2) {
 		return;
 	}
 
-	public void reshape(GLAutoDrawable arg0, int arg1, int arg2, int arg3, int arg4) {
+	public void reshape(GLAutoDrawable glDrawable, int windowX, int windowY, int maxX, int maxY) {
 		return;
+	}
+
+	public EditorFrame getWindow() {
+		return window;
+	}
+
+	public void setWindow(EditorFrame window) {
+		this.window = window;
+	}
+
+	public Mode getMode() {
+		return mode;
+	}
+
+	public void setMode(Mode mode) {
+		
+		if( mode == Mode.EXIT ) {
+			System.exit(0);
+		}
+		
+		this.mode = mode;
+	}
+
+	public Color getColor() {
+		return color;
+	}
+
+	public void setColor(Color color) {
+		this.color = color;
 	}
 }

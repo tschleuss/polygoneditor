@@ -10,7 +10,7 @@ import javax.media.opengl.glu.GLU;
 
 import com.sun.opengl.util.GLUT;
 
-public interface Poligono extends KeyListener, MouseMotionListener, MouseListener {
+public interface Calculo extends KeyListener, MouseMotionListener, MouseListener {
 
 	void init(GL gl, GLU glu, GLUT glut, GLAutoDrawable glDrawable);
 	void draw();
