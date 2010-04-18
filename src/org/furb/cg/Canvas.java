@@ -159,11 +159,17 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	
 	/**
 	 * Metodo utilizado para desenhar
-	 * a spline.
+	 * a spline na tela do usuario.
 	 */
 	private void drawSpline(Poligono poligon)
 	{
-		gl.glColor3f(0.0f, 0.0f, 1.0f);
+		//Seta o cor do poligono a ser renderizado
+		color = poligon.getColor();
+		final float red	= color.getRed()   / 255.0f;
+		final float gre	= color.getGreen() / 255.0f;
+		final float blu = color.getBlue()  / 255.0f;
+		gl.glColor3f(red,gre,blu);
+		
 		gl.glPointSize(3.0f);
 		gl.glBegin(GL.GL_POINTS);
 		
@@ -194,6 +200,14 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		}
 	}
 	
+	/**
+	 * Recupera os pontos adicionados pelo usuario
+	 * com o listener do mouse.
+	 * @param poligon
+	 * @param numArco
+	 * @param t
+	 * @return
+	 */
 	private float[] evaluateSplinePoint(Poligono poligon, int numArco, float t) 
 	{
 	    float x = 0;
@@ -213,6 +227,13 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	    return new float[]{ x , y };
 	}
 	
+	/**
+	 * Metodo utilizado para calcular os pontos para
+	 * desenhar a spline de bezier
+	 * @param i
+	 * @param t
+	 * @return
+	 */
 	private float calculeBezier(int i, float t) 
 	{
 		double base = (1 - t);
@@ -439,7 +460,11 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	{
 		if( e.getButton() == MouseEvent.BUTTON1 ) 
 		{
-			if( this.getMode() == Mode.SELECTION ) 
+			if( this.getMode() == Mode.NEW )
+			{
+				//New
+			}
+			else if( this.getMode() == Mode.SELECTION ) 
 			{
 				//Selecao
 			}
