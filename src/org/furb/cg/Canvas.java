@@ -57,7 +57,6 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	private List<Poligono>	poligonos			= new ArrayList<Poligono>();
 	private List<Poligono>	selecionados		= new ArrayList<Poligono>();
 	private int				selectedPointIdx	= 0;
-	private Poligono		mouse				= new Poligono();
 	private Poligono		selectedPoint		= null;
 	private Poligono		atual				= null;
 	private Poligono		linha				= null;
@@ -159,7 +158,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 			}
 			
 			//TESTE - Renderiza a boundox dos elementos
-			final boolean showBox = true;
+			final boolean showBox = false;
 			if( showBox ) 
 			{
 				gl.glColor3f(1.0f, 1.0f, 0.0f);
@@ -410,23 +409,6 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 			if( poligon.isOverBoundBox(x, y) )
 			{
 				preSelecteds.add(poligon);
-			}
-			
-			if( poligon.getMode() == Mode.CIRCLE )
-			{
-				System.out.println("E Circulo com selectedPoint = " + selectedPoint );
-				if( selectedPoint == null )
-				{
-					System.out.println("Mouse Ž : " + mouse );
-					for( float[] points : poligon.getPontos() )
-					{
-						if( mouse.isOverBoundBox(points[0], points[1]) )
-						{
-							selectedPoint = poligon;
-							selectedPointIdx = poligon.getPontos().indexOf(points);
-						}
-					}
-				}
 			}
 		}
 		
@@ -680,15 +662,6 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 			}
 		}
 		
-		//TETSE - Cria um boundbox para o mouse
-		mouse.getPontos().clear();
-	    mouse.resetBoundBox();
-	    mouse.getPontos().add( new float[]{ pointX -1 , pointY -1  } );
-	    mouse.getPontos().add( new float[]{ pointX -1 , pointY +1  } );
-	    mouse.getPontos().add( new float[]{ pointX +1 , pointY +1  } );
-	    mouse.getPontos().add( new float[]{ pointX +1 , pointY -1  } );
-	    mouse.updateBoundBox();
-		
 		if( glDrawable != null ) {
 			glDrawable.display();
 		}
@@ -706,18 +679,15 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		{
 			if( selectedPoint != null )
 			{
-				if( selectedPoint.getMode() != Mode.CIRCLE )
+				if( selectedPointIdx >= 0 && selectedPointIdx < selectedPoint.getPontos().size() )
 				{
-					if( selectedPointIdx >= 0 && selectedPointIdx < selectedPoint.getPontos().size() )
-					{
-						Poligono poligon = selectedPoint;
-						int idx = selectedPointIdx;
-						
-						poligon.resetBoundBox();
-						poligon.getPontos().get(idx)[0] += ( (xValue - pointX) * -1 );
-						poligon.getPontos().get(idx)[1] += ( (yValue - pointY) * -1 );
-						poligon.updateBoundBox();
-					}
+					Poligono poligon = selectedPoint;
+					int idx = selectedPointIdx;
+					
+					poligon.resetBoundBox();
+					poligon.getPontos().get(idx)[0] += ( (xValue - pointX) * -1 );
+					poligon.getPontos().get(idx)[1] += ( (yValue - pointY) * -1 );
+					poligon.updateBoundBox();
 				}
 			}
 			else if ( selecionados != null )
