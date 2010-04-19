@@ -15,6 +15,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.media.opengl.DebugGL;
@@ -55,9 +56,14 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	
 	private List<Poligono>	poligonos			= new ArrayList<Poligono>();
 	private List<Poligono>	selecionados		= new ArrayList<Poligono>();
+	private int				selectedPointIdx	= 0;
+	private Poligono		mouse				= new Poligono();
+	private Poligono		selectedPoint		= null;
 	private Poligono		atual				= null;
 	private Poligono		linha				= null;
 	private float 			scale				= 1.0f;
+	private float			xValue				= 0.0f;
+	private float			yValue				= 0.0f;
 	
 	public Canvas()
 	{
@@ -151,6 +157,19 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 				
 				gl.glEnd();
 			}
+			
+			//TESTE - Renderiza a boundox dos elementos
+			final boolean showBox = true;
+			if( showBox ) 
+			{
+				gl.glColor3f(1.0f, 1.0f, 0.0f);
+				gl.glBegin(GL.GL_LINE_LOOP);
+					gl.glVertex2d(poligon.getMinX(),  poligon.getMinY());	
+					gl.glVertex2d(poligon.getMaxX(),  poligon.getMinY());	
+					gl.glVertex2d(poligon.getMaxX(),  poligon.getMaxY());	
+					gl.glVertex2d(poligon.getMinX(),  poligon.getMaxY());	
+				gl.glEnd();
+			}
 		}
 		
 		this.drawLinePreviw();
@@ -164,12 +183,6 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	private void drawSpline(Poligono poligon)
 	{
 		//Seta o cor do poligono a ser renderizado
-		color = poligon.getColor();
-		final float red	= color.getRed()   / 255.0f;
-		final float gre	= color.getGreen() / 255.0f;
-		final float blu = color.getBlue()  / 255.0f;
-		gl.glColor3f(red,gre,blu);
-		
 		gl.glPointSize(3.0f);
 		gl.glBegin(GL.GL_POINTS);
 		
@@ -381,6 +394,117 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	}
 	
 	/**
+	 * Metodo utilizado para validar a interseccao
+	 * entre o mouse o possivel objeto na tela
+	 * @return
+	 */
+	public void intersectionCheck(float x, float y)
+	{
+		List<Poligono> preSelecteds = new ArrayList<Poligono>();
+		selecionados.clear();
+		
+		for( Poligono poligon : poligonos )
+		{
+			poligon.setSelected(false);
+			
+			if( poligon.isOverBoundBox(x, y) )
+			{
+				preSelecteds.add(poligon);
+			}
+			
+			if( poligon.getMode() == Mode.CIRCLE )
+			{
+				System.out.println("E Circulo com selectedPoint = " + selectedPoint );
+				if( selectedPoint == null )
+				{
+					System.out.println("Mouse Ž : " + mouse );
+					for( float[] points : poligon.getPontos() )
+					{
+						if( mouse.isOverBoundBox(points[0], points[1]) )
+						{
+							selectedPoint = poligon;
+							selectedPointIdx = poligon.getPontos().indexOf(points);
+						}
+					}
+				}
+			}
+		}
+		
+		for( Poligono poligon : preSelecteds )
+		{
+			Iterator<float[]> iterator = poligon.getPontos().iterator();
+			float[] ini = null;
+			float[] end = null;
+			boolean last = false;
+			int count = 0;
+			
+			while( true ) 
+			{
+				if( ini == null ) 
+				{
+					ini = iterator.next();
+				}
+				
+				if( iterator.hasNext() )
+				{
+					end = iterator.next();
+				}
+				else
+				{
+					end = poligon.getPontos().get(0);
+					last = true;
+				}
+				
+				if( ini[1] != end[1] )
+				{
+					//Scan Line
+					if( this.intersec2d(ini, end, x, y) )
+					{
+						count++;
+					}
+				}
+				
+				ini = end;
+				
+				if( last )
+				{
+					break;
+				}
+			}
+			
+			//Se colidiu com valor impar
+			if( (count % 2) != 0 )
+			{
+				poligon.setSelected(true);
+				selecionados.add(poligon);
+			}
+		}
+	}
+	
+	/**
+	 * Verifica interseccao 2D
+	 * @param ini
+	 * @param end
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	private boolean intersec2d(float[] ini, float[] end, float x, float y)
+	{
+		float det = ini[0] + (end[0] - ini[0]) * ( (y - ini[1]) / (end[1] - ini[1]) ); 
+
+		if ( Float.isInfinite(det) ) {
+			return false; // nao ha interseccao
+		}
+
+		if(det > x && y > Math.min(ini[1], end[1]) && y <= Math.max(ini[1], end[1])){
+			return true; // ha interseccao
+		}
+
+		return false;
+	}
+	
+	/**
 	 * Finaliza as variaveis, criando assim
 	 * um novo "documento" com a tela limpa
 	 * sem ponto adicionados.
@@ -458,21 +582,27 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	 */
 	public void mousePressed(MouseEvent e)
 	{
+		//Verificar selecao ou adicionar ponto
+		final float pointX = Base.getInstace().normalizarX( Float.valueOf( e.getX() ) );
+		final float pointY = Base.getInstace().normalizarY( Float.valueOf( e.getY() ) );
+		
+		selectedPoint = null;
+		selectedPointIdx = -1;
+		
 		if( e.getButton() == MouseEvent.BUTTON1 ) 
 		{
-			if( this.getMode() == Mode.NEW )
+			if( this.getMode() == Mode.NEW || this.getMode() == Mode.COLOR )
 			{
-				//New
+				//Nao faz nada =)
 			}
 			else if( this.getMode() == Mode.SELECTION ) 
 			{
-				//Selecao
+				intersectionCheck(pointX, pointY);
+				xValue = pointX;
+				yValue = pointY;
 			}
 			else
 			{
-				//Verificar selecao ou adicionar ponto
-				final float pointX = Base.getInstace().normalizarX( Float.valueOf( e.getX() ) );
-				final float pointY = Base.getInstace().normalizarY( Float.valueOf( e.getY() ) );
 				this.addPoint(pointX, pointY);	
 			}
 		} 
@@ -550,6 +680,15 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 			}
 		}
 		
+		//TETSE - Cria um boundbox para o mouse
+		mouse.getPontos().clear();
+	    mouse.resetBoundBox();
+	    mouse.getPontos().add( new float[]{ pointX -1 , pointY -1  } );
+	    mouse.getPontos().add( new float[]{ pointX -1 , pointY +1  } );
+	    mouse.getPontos().add( new float[]{ pointX +1 , pointY +1  } );
+	    mouse.getPontos().add( new float[]{ pointX +1 , pointY -1  } );
+	    mouse.updateBoundBox();
+		
 		if( glDrawable != null ) {
 			glDrawable.display();
 		}
@@ -563,7 +702,41 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		final MessageFormat mf = new MessageFormat("({0},{1})");
 		this.getWindow().setStatus( mf.format( new Object[]{ pointX , pointY } ) );
 		
-		if ( this.getMode() == Mode.CIRCLE ) 
+		if( this.getMode() == Mode.SELECTION )
+		{
+			if( selectedPoint != null )
+			{
+				if( selectedPoint.getMode() != Mode.CIRCLE )
+				{
+					if( selectedPointIdx >= 0 && selectedPointIdx < selectedPoint.getPontos().size() )
+					{
+						Poligono poligon = selectedPoint;
+						int idx = selectedPointIdx;
+						
+						poligon.resetBoundBox();
+						poligon.getPontos().get(idx)[0] += ( (xValue - pointX) * -1 );
+						poligon.getPontos().get(idx)[1] += ( (yValue - pointY) * -1 );
+						poligon.updateBoundBox();
+					}
+				}
+			}
+			else if ( selecionados != null )
+			{
+				System.out.println("Ha " + selecionados.size() + " poligonos selecionados");
+
+				for( Poligono poligon : selecionados )
+				{
+					for( float[] points : poligon.getPontos() )
+					{
+						poligon.resetBoundBox();
+						points[0] += ( (xValue - pointX) * -1 );
+						points[1] += ( (yValue - pointY) * -1 );
+						poligon.updateBoundBox();
+					}
+				}
+			}
+		}
+		else if ( this.getMode() == Mode.CIRCLE ) 
 		{
 			if( atual != null && atual.getPontos().size() == 1 )
 			{
@@ -572,6 +745,9 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 				linha.getPontos().add( pointA );
 			}
 		}
+		
+		xValue = pointX;
+		yValue = pointY;
 		
 		if( glDrawable != null ) {
 			glDrawable.display();

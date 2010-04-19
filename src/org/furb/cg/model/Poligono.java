@@ -17,6 +17,7 @@ public class Poligono {
 
 	//Atributos do Poligono
 	private List<float[]>	pontos		= new ArrayList<float[]>();
+	private List<float[]>	origem		= new ArrayList<float[]>();
 	private boolean			selected	= false;
 	private Mode			mode		= null;
 	private Color			color		= Color.BLACK;
@@ -38,13 +39,52 @@ public class Poligono {
 	 */
 	public void updateBoundBox() 
 	{ 
-		final float vX = pontos.get( pontos.size()-1 )[0];
-		final float vY = pontos.get( pontos.size()-1 )[1];
+		float vX = 0.0f;
+		float vY = 0.0f;
 		
-		if ( vX > maxX ) { maxX = vX; }
-		if ( vX < minX ) { minX = vX; }
-		if ( vY > maxY ) { maxY = vY; }
-		if ( vY < minY ) { minY = vY; }
+		for( float points[] : pontos )
+		{
+			vX = points[0];
+			vY = points[1];
+			
+			if ( vX > maxX ) { maxX = vX; }
+			if ( vX < minX ) { minX = vX; }
+			if ( vY > maxY ) { maxY = vY; }
+			if ( vY < minY ) { minY = vY; }
+		}
+	}
+	
+	/**
+	 * Verifica se as coordenadas passadas
+	 * esta entre os pontos que formam o boundbox
+	 * deste poligono
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public boolean isOverBoundBox(float x, float y)
+	{
+		if( (x >= minX) && (x <= maxX ) ) 
+		{
+			if( (y >= minY) && (y <= maxY ) ) 
+			{
+				return true;
+			}	
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Metodo utilizado para resetar a bound box
+	 * do poligono.
+	 */
+	public void resetBoundBox()
+	{
+		maxX = Float.MIN_VALUE;
+		minX = Float.MAX_VALUE;
+		maxY = Float.MIN_VALUE;
+		minY = Float.MAX_VALUE;
 	}
 
 	public List<float[]> getPontos() {
@@ -53,6 +93,14 @@ public class Poligono {
 
 	public void setPontos(List<float[]> pontos) {
 		this.pontos = pontos;
+	}
+
+	public List<float[]> getOrigem() {
+		return origem;
+	}
+
+	public void setOrigem(List<float[]> origem) {
+		this.origem = origem;
 	}
 
 	public float getMaxX() {
