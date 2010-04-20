@@ -158,6 +158,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 				gl.glEnd();
 			}
 			
+			this.drawBoxOnSelctedPoligons(poligon);
 			this.drawBoundBox(poligon);
 		}
 		
@@ -176,6 +177,27 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 			gl.glEnable(GL.GL_LINE_STIPPLE);
 			gl.glLineStipple(1, (short) 0x00FF); 
 			gl.glColor3f(1.0f, 0.0f, 0.0f);
+			gl.glBegin(GL.GL_LINE_LOOP);
+				gl.glVertex2d(poligon.getMinX(),  poligon.getMinY());	
+				gl.glVertex2d(poligon.getMaxX(),  poligon.getMinY());	
+				gl.glVertex2d(poligon.getMaxX(),  poligon.getMaxY());	
+				gl.glVertex2d(poligon.getMinX(),  poligon.getMaxY());	
+			gl.glEnd();
+			gl.glDisable(GL.GL_LINE_STIPPLE);
+		}
+	}
+	
+	/**
+	 * Metodo utilizado para desenhar a bound
+	 * box dos poligonos selecionados.
+	 */
+	private void drawBoxOnSelctedPoligons(Poligono poligon)
+	{
+		if( poligon.isSelected() ) 
+		{
+			gl.glEnable(GL.GL_LINE_STIPPLE);
+			gl.glLineStipple(1, (short) 0x00FF); 
+			gl.glColor3f(0.0f, 1.0f, 0.0f);
 			gl.glBegin(GL.GL_LINE_LOOP);
 				gl.glVertex2d(poligon.getMinX(),  poligon.getMinY());	
 				gl.glVertex2d(poligon.getMaxX(),  poligon.getMinY());	
@@ -628,6 +650,21 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	}
 	
 	/**
+	 * Metodo utilizado para deletar
+	 * os poligonos selecionados pelo usuario
+	 */
+	private void deleteSelectedObjects()
+	{
+		for( Poligono poligon : selecionados )
+		{
+			poligonos.remove(poligon);
+		}
+		
+		selecionados.clear();
+		this.reRender();
+	}
+	
+	/**
 	 * Metodo chamado pelo listener quando o
 	 * usuario pressionar um botao do mouse.
 	 */
@@ -797,10 +834,19 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	{
 		final int key = e.getKeyCode();
 		final boolean closePoligon = ( key == KeyEvent.VK_F );
+		final boolean deleteObject = ( key == KeyEvent.VK_DELETE );
 		
+		//Se for modo Poligono aberto e o usuario pressionar a tecla F
 		if( this.getMode() == Mode.OPEN_POLYGON && closePoligon )
 		{
+			//Fecha o poligno com o ponto inicial
 			this.closeOpenedPoligon();
+		}
+		//Caso o usuario pressione o botao delete
+		else if ( deleteObject )
+		{
+			//Exclui todos os objetos selcionados
+			this.deleteSelectedObjects();
 		}
 		
 		return;
