@@ -157,7 +157,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 				gl.glEnd();
 			}
 			
-			//TESTE - Renderiza a boundox dos elementos
+			//TESTE - Renderiza a boundbox dos elementos
 			final boolean showBox = false;
 			if( showBox ) 
 			{
@@ -414,6 +414,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		
 		for( Poligono poligon : preSelecteds )
 		{
+			//Recupera todos os pares de pontos x,y do poligono pre-selecionado
 			Iterator<float[]> iterator = poligon.getPontos().iterator();
 			float[] ini = null;
 			float[] end = null;
@@ -422,41 +423,51 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 			
 			while( true ) 
 			{
+				//Se comecou agora
 				if( ini == null ) 
 				{
+					//Recupera x,y do primeiro ponto
 					ini = iterator.next();
 				}
 				
+				//Se ainda ha pontos
 				if( iterator.hasNext() )
 				{
+					//Recupera o proximo x,y do segundo ponto
 					end = iterator.next();
 				}
 				else
 				{
+					//Senao so ha 1 ponto
 					end = poligon.getPontos().get(0);
 					last = true;
 				}
 				
+				//Se o ponto inicial x1,y1 for diferente do ponto final x2,y2
 				if( ini[1] != end[1] )
 				{
-					//Scan Line
+					//Utiliza scan line para verifica se o ponto intersecta
 					if( this.intersec2d(ini, end, x, y) )
 					{
+						//Soma a quantidade de interseccoes
 						count++;
 					}
 				}
 				
+				//Finaliza a linha
 				ini = end;
 				
+				//Se for a ultina, termina!
 				if( last )
 				{
 					break;
 				}
 			}
 			
-			//Se colidiu com valor impar
+			//Se colidiu com valor impar de pontos
 			if( (count % 2) != 0 )
 			{
+				//Selcione o poligono e adiciona na lista de selecionados
 				poligon.setSelected(true);
 				selecionados.add(poligon);
 			}
@@ -575,7 +586,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		{
 			if( this.getMode() == Mode.NEW || this.getMode() == Mode.COLOR )
 			{
-				//Nao faz nada =)
+				//Nao faz nada ainda =)
 			}
 			else if( this.getMode() == Mode.SELECTION ) 
 			{
@@ -590,7 +601,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		} 
 		else if ( e.getButton() == MouseEvent.BUTTON3 ) 
 		{
-			cancelSelection();
+			this.cancelSelection();
 		}
 		
 		glDrawable.display();
@@ -692,8 +703,6 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 			}
 			else if ( selecionados != null )
 			{
-				System.out.println("Ha " + selecionados.size() + " poligonos selecionados");
-
 				for( Poligono poligon : selecionados )
 				{
 					for( float[] points : poligon.getPontos() )
