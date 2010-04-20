@@ -473,7 +473,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 			//Se colidiu com valor impar de pontos
 			if( (count % 2) != 0 )
 			{
-				//Selcione o poligono e adiciona na lista de selecionados
+				//Seleciona o poligono e adiciona na lista de selecionados
 				poligon.setSelected(true);
 				selecionados.add(poligon);
 			}
