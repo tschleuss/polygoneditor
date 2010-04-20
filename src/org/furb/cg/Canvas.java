@@ -399,19 +399,25 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	 */
 	public void intersectionCheck(float x, float y)
 	{
+		//Cria um array para armazenar o poligonos pre-selcionados
 		List<Poligono> preSelecteds = new ArrayList<Poligono>();
 		selecionados.clear();
 		
+		//Para todos os poligonos da tela
 		for( Poligono poligon : poligonos )
 		{
+			//Nenhum esta selecionado ainda
 			poligon.setSelected(false);
 			
+			//Se o ponto do clique esta dentro de sua boundbox
 			if( poligon.isOverBoundBox(x, y) )
 			{
+				//Pre-selciona o poligono
 				preSelecteds.add(poligon);
 			}
 		}
 		
+		//Para todos os poligonos pre-selecionados
 		for( Poligono poligon : preSelecteds )
 		{
 			//Recupera todos os pares de pontos x,y do poligono pre-selecionado
