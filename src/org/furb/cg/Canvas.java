@@ -8,6 +8,10 @@ import static java.lang.Math.sin;
 import static java.lang.Math.sqrt;
 
 import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -23,6 +27,7 @@ import javax.media.opengl.GL;
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLEventListener;
 import javax.media.opengl.glu.GLU;
+import javax.swing.ImageIcon;
 
 import org.furb.cg.model.Poligono;
 import org.furb.cg.util.Base;
@@ -157,7 +162,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 				
 				gl.glEnd();
 			}
-			
+
 			this.drawBoxOnSelctedPoligons(poligon);
 			this.drawBoundBox(poligon);
 		}

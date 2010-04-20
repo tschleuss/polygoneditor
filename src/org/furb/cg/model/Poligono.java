@@ -17,7 +17,6 @@ public class Poligono {
 
 	//Atributos do Poligono
 	private List<float[]>	pontos		= new ArrayList<float[]>();
-	private List<float[]>	origem		= new ArrayList<float[]>();
 	private boolean			selected	= false;
 	private Mode			mode		= null;
 	private Color			color		= Color.BLACK;
@@ -93,14 +92,6 @@ public class Poligono {
 
 	public void setPontos(List<float[]> pontos) {
 		this.pontos = pontos;
-	}
-
-	public List<float[]> getOrigem() {
-		return origem;
-	}
-
-	public void setOrigem(List<float[]> origem) {
-		this.origem = origem;
 	}
 
 	public float getMaxX() {
