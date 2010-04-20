@@ -461,7 +461,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 				if( ini[1] != end[1] )
 				{
 					//Utiliza scan line para verifica se o ponto intersecta
-					if( this.intersec2d(ini, end, x, y) )
+					if( this.scanLine(ini, end, x, y) )
 					{
 						//Soma a quantidade de interseccoes
 						count++;
@@ -496,15 +496,17 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	 * @param y
 	 * @return
 	 */
-	private boolean intersec2d(float[] ini, float[] end, float x, float y)
+	private boolean scanLine(float[] ini, float[] end, float x, float y)
 	{
 		float det = ini[0] + (end[0] - ini[0]) * ( (y - ini[1]) / (end[1] - ini[1]) ); 
 
-		if ( Float.isInfinite(det) ) {
+		if ( Float.isInfinite(det) ) 
+		{
 			return false; // nao ha interseccao
 		}
 
-		if(det > x && y > Math.min(ini[1], end[1]) && y <= Math.max(ini[1], end[1])){
+		if( det > x && y > Math.min(ini[1], end[1]) && y <= Math.max(ini[1], end[1]) )
+		{
 			return true; // ha interseccao
 		}
 
@@ -527,7 +529,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		atual	= null;
 		mode	= Mode.SELECTION;
 		
-		glDrawable.display();
+		this.reRender();
 	}
 	
 	/**
@@ -545,6 +547,8 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		atual = new Poligono();
 		atual.setMode( this.getMode() );
 		poligonos.add(atual);
+		
+		this.reRender();
 	}
 	
 	/**
@@ -555,6 +559,8 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	{
 		linha	= null;
 		atual	= null;
+		
+		this.reRender();
 	}
 	
 	/**
@@ -567,7 +573,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 			scale -= 0.05;
 		}
 		
-		glDrawable.display();
+		this.reRender();
 	}
 
 	/**
@@ -580,7 +586,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 			scale += 0.05;
 		}
 		
-		glDrawable.display();
+		this.reRender();
 	}
 	
 	/**
@@ -590,6 +596,32 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	public void showBoundBox()
 	{
 		this.showBoundBox = !this.showBoundBox;
+	}
+	
+	/**
+	 * Finaliza um poligono aberto ao
+	 * pressionar a tecla 'F'
+	 */
+	private void closeOpenedPoligon()
+	{
+		if( atual != null )
+		{
+			float[] pointA = atual.getPontos().get(0);
+			this.addPoint(pointA[0], pointA[1]);
+			cancelSelection();
+		}
+	}
+	
+	/**
+	 * Metodo seguro para re-renderizar toda
+	 * a tela, verificando se o metodo nao
+	 * esta null;
+	 */
+	private void reRender()
+	{
+		if( glDrawable != null ) {
+			glDrawable.display();
+		}
 	}
 	
 	/**
@@ -623,7 +655,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 			this.cancelSelection();
 		}
 		
-		glDrawable.display();
+		this.reRender();
 	}
 	
 	/**
@@ -692,11 +724,14 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 			}
 		}
 		
-		if( glDrawable != null ) {
-			glDrawable.display();
-		}
+		this.reRender();
 	}
 	
+	/**
+	 * Metodo chamado quando o usuario clica e arrasta
+	 * o ponteiro do mouse, realizando o movimento
+	 * de clicar e arrastar
+	 */
 	public void mouseDragged(MouseEvent e) 
 	{
 		final float pointX = Base.getInstace().normalizarX( Float.valueOf( e.getX() ) );
@@ -747,12 +782,24 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		xValue = pointX;
 		yValue = pointY;
 		
-		if( glDrawable != null ) {
-			glDrawable.display();
-		}
+		this.reRender();
 	}
 	
-	public void keyPressed(KeyEvent e) {
+	/**
+	 * Listener chamado quando um usuario
+	 * pressiona uma tecla do seu teclado
+	 * e/ou mouse.
+	 */
+	public void keyPressed(KeyEvent e) 
+	{
+		final int key = e.getKeyCode();
+		final boolean closePoligon = ( key == KeyEvent.VK_F );
+		
+		if( this.getMode() == Mode.OPEN_POLYGON && closePoligon )
+		{
+			this.closeOpenedPoligon();
+		}
+		
 		return;
 	}
 	
@@ -802,7 +849,10 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 
 	public void setMode(Mode mode)
 	{
-		this.mode = mode;
+		if( mode != Mode.DO_NOTHING ) {
+			this.mode = mode;
+		}
+		
 		this.cancelSelection();
 	}
 
