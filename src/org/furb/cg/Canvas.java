@@ -41,13 +41,14 @@ import com.sun.opengl.util.GLUT;
  */
 public class Canvas implements GLEventListener, KeyListener, MouseMotionListener, MouseListener {
 	
-	private GL				gl			= null;
-	private GLU				glu			= null;
-	private GLUT			glut 		= null;
-	private GLAutoDrawable	glDrawable	= null;
-	private EditorFrame		window		= null;
-	private Mode			mode		= null;
-	private Color			color		= Color.BLACK;
+	private GL				gl				= null;
+	private GLU				glu				= null;
+	private GLUT			glut 			= null;
+	private GLAutoDrawable	glDrawable		= null;
+	private EditorFrame		window			= null;
+	private Mode			mode			= null;
+	private Color			color			= Color.BLACK;
+	private boolean			showBoundBox	= false;
 
 	private float			left;
 	private float			right;
@@ -157,22 +158,29 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 				gl.glEnd();
 			}
 			
-			//TESTE - Renderiza a boundbox dos elementos
-			final boolean showBox = false;
-			if( showBox ) 
-			{
-				gl.glColor3f(1.0f, 1.0f, 0.0f);
-				gl.glBegin(GL.GL_LINE_LOOP);
-					gl.glVertex2d(poligon.getMinX(),  poligon.getMinY());	
-					gl.glVertex2d(poligon.getMaxX(),  poligon.getMinY());	
-					gl.glVertex2d(poligon.getMaxX(),  poligon.getMaxY());	
-					gl.glVertex2d(poligon.getMinX(),  poligon.getMaxY());	
-				gl.glEnd();
-			}
+			this.drawBoundBox(poligon);
 		}
 		
 		this.drawLinePreviw();
 		this.drawCirclePreview();
+	}
+	
+	/**
+	 * Metodo utilizado para desenhar a bound
+	 * box dos poligonos na tela do usuario.
+	 */
+	private void drawBoundBox(Poligono poligon)
+	{
+		if( showBoundBox ) 
+		{
+			gl.glColor3f(1.0f, 1.0f, 0.0f);
+			gl.glBegin(GL.GL_LINE_LOOP);
+				gl.glVertex2d(poligon.getMinX(),  poligon.getMinY());	
+				gl.glVertex2d(poligon.getMaxX(),  poligon.getMinY());	
+				gl.glVertex2d(poligon.getMaxX(),  poligon.getMaxY());	
+				gl.glVertex2d(poligon.getMinX(),  poligon.getMaxY());	
+			gl.glEnd();
+		}
 	}
 	
 	/**
@@ -576,6 +584,15 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	}
 	
 	/**
+	 * Que define se a boundbox dos 
+	 * polignos sera exibida ou nao
+	 */
+	public void showBoundBox()
+	{
+		this.showBoundBox = !this.showBoundBox;
+	}
+	
+	/**
 	 * Metodo chamado pelo listener quando o
 	 * usuario pressionar um botao do mouse.
 	 */
@@ -590,11 +607,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		
 		if( e.getButton() == MouseEvent.BUTTON1 ) 
 		{
-			if( this.getMode() == Mode.NEW || this.getMode() == Mode.COLOR )
-			{
-				//Nao faz nada ainda =)
-			}
-			else if( this.getMode() == Mode.SELECTION ) 
+			if( this.getMode() == Mode.SELECTION ) 
 			{
 				intersectionCheck(pointX, pointY);
 				xValue = pointX;
@@ -787,12 +800,8 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		return mode;
 	}
 
-	public void setMode(Mode mode) {
-		
-		if( mode == Mode.EXIT ) {
-			System.exit(0);
-		}
-		
+	public void setMode(Mode mode)
+	{
 		this.mode = mode;
 		this.cancelSelection();
 	}

@@ -56,6 +56,7 @@ public class EditorFrame extends JFrame {
     private JPanel 		pnStatus		= null;
     private JButton		zoomIn			= null;
     private JButton		zoomOut			= null;
+    private JButton		btBoundBox		= null;
     
     /**
      * Construtor da classe
@@ -96,6 +97,7 @@ public class EditorFrame extends JFrame {
         selectPolygon	= new JButton();
         zoomIn			= new JButton();
         zoomOut			= new JButton();
+        btBoundBox		= new JButton();
         
         jogl.setWindow(this);
         jogl.setMode(Mode.SELECTION);
@@ -106,16 +108,17 @@ public class EditorFrame extends JFrame {
         pnBotoes.setMinimumSize(new Dimension(100, 100));
         pnBotoes.setPreferredSize(new Dimension(40, 40));
         
-        this.initButton("Novo documento",			newDocument,	Mode.NEW,			"newDocument.png"	, false,	false	);
-        this.initButton("Desenha poligono aberto",	openPoligon,	Mode.OPEN_POLYGON,	"openPolygon.png"	, true, 	true	);
-        this.initButton("Desenha poligono fechado",	closePoligon,	Mode.CLOSE_POLYGON,	"closePolygon.png"	, true, 	true	);
-        this.initButton("Desenhar um circulo",		btCirculo,		Mode.CIRCLE,		"circle.png"		, true, 	true	);
-        this.initButton("Desenhar uma spline",		btSpline,		Mode.SPLINE,		"spline.png"		, true, 	true	);
-        this.initButton("Selecionar poligono", 		selectPolygon, 	Mode.SELECTION,		"select.png" 		, true,		true	);
-        this.initButton("Incrementar Zoom", 		zoomIn, 		Mode.ZOOM_IN,		"zoomIn.png"		, false,	false	);
-        this.initButton("Decrementar Zoom", 		zoomOut, 		Mode.ZOOM_OUT,		"zoomOut.png"		, false,	false	);
-        this.initButton("Selecionar um cor",		btCorPadrao,	Mode.COLOR, 		"paint.png"			, false, 	false	);
-        this.initButton("Finalizar o programa",		btSair, 	  	Mode.EXIT, 			"exit.png"			, true, 	true	);
+        this.initButton("Novo documento",			newDocument,	Mode.DO_NOTHING,		"newDocument.png"	, false,	false	);
+        this.initButton("Desenha poligono aberto",	openPoligon,	Mode.OPEN_POLYGON,		"openPolygon.png"	, true, 	true	);
+        this.initButton("Desenha poligono fechado",	closePoligon,	Mode.CLOSE_POLYGON,		"closePolygon.png"	, true, 	true	);
+        this.initButton("Desenhar um circulo",		btCirculo,		Mode.CIRCLE,			"circle.png"		, true, 	true	);
+        this.initButton("Desenhar uma spline",		btSpline,		Mode.SPLINE,			"spline.png"		, true, 	true	);
+        this.initButton("Selecionar poligono", 		selectPolygon, 	Mode.SELECTION,			"select.png" 		, true,		true	);
+        this.initButton("Incrementar Zoom", 		zoomIn, 		Mode.DO_NOTHING,		"zoomIn.png"		, false,	false	);
+        this.initButton("Decrementar Zoom", 		zoomOut, 		Mode.DO_NOTHING,		"zoomOut.png"		, false,	false	);
+        this.initButton("Selecionar um cor",		btCorPadrao,	Mode.DO_NOTHING, 		"paint.png"			, false, 	false	);
+        this.initButton("Exibir boundbox",			btBoundBox,		Mode.DO_NOTHING, 		"boundbox.png"		, false, 	false	);
+        this.initButton("Finalizar o programa",		btSair, 	  	Mode.DO_NOTHING, 		"exit.png"			, true, 	true	);
         
         lbStatus.setText(" ");
         pnStatus.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
@@ -184,6 +187,22 @@ public class EditorFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) 
 			{
 				jogl.zoomOut();
+			}
+		});
+        
+        btSair.addActionListener( new ActionListener() 
+        {	
+			public void actionPerformed(ActionEvent e)
+			{
+				System.exit(0);
+			}
+		});
+        
+        btBoundBox.addActionListener( new ActionListener() 
+        {	
+			public void actionPerformed(ActionEvent e)
+			{
+				jogl.showBoundBox();
 			}
 		});
 

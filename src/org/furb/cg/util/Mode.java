@@ -8,16 +8,12 @@ package org.furb.cg.util;
  */
 public enum Mode {
 
-	NEW 			(0),
 	OPEN_POLYGON 	(1),
 	CLOSE_POLYGON 	(2),
 	CIRCLE 			(3),
 	SPLINE  		(4),
-	EXIT    		(5),
-	SELECTION		(6),
-	ZOOM_IN			(7),
-	ZOOM_OUT		(8),
-	COLOR			(9);
+	SELECTION		(5),
+	DO_NOTHING		(6);
 	
 	private int mode;
 	
