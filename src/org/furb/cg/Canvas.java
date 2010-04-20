@@ -173,13 +173,16 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	{
 		if( showBoundBox ) 
 		{
-			gl.glColor3f(1.0f, 1.0f, 0.0f);
+			gl.glEnable(GL.GL_LINE_STIPPLE);
+			gl.glLineStipple(1, (short) 0x00FF); 
+			gl.glColor3f(1.0f, 0.0f, 0.0f);
 			gl.glBegin(GL.GL_LINE_LOOP);
 				gl.glVertex2d(poligon.getMinX(),  poligon.getMinY());	
 				gl.glVertex2d(poligon.getMaxX(),  poligon.getMinY());	
 				gl.glVertex2d(poligon.getMaxX(),  poligon.getMaxY());	
 				gl.glVertex2d(poligon.getMinX(),  poligon.getMaxY());	
 			gl.glEnd();
+			gl.glDisable(GL.GL_LINE_STIPPLE);
 		}
 	}
 	
