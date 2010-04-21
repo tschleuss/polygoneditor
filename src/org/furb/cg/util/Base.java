@@ -1,5 +1,8 @@
 package org.furb.cg.util;
 
+import static java.lang.Math.pow;
+import static java.lang.Math.sqrt;
+
 /**
  * Classe base responsavel por guardar
  * funcoes de uso constante, guardar
@@ -57,13 +60,30 @@ public class Base {
 	 */
 	public float normalizarY(float y)
 	{
+		//tamanho da toolbar
 		final float toolbarFix = 90.0f;
+		
 		final float yOrigem = screenHeight;		
 		final float yDestino = (bottom - (top + toolbarFix) );
 		final float newY = ( y * ( yDestino / yOrigem ) ) + top;
+		
 		return Math.round(newY);
 	}
 
+	/**
+	 * Formula usada para calcular a distancia
+	 * entre dois pontos.
+	 * @param p1
+	 * @param p2
+	 * @return
+	 */
+	public float distance(float[] p1, float[] p2) 
+	{
+		final float xCalc = Float.valueOf( String.valueOf( pow((p2[0] - p1[0]),2) ) );
+		final float yCalc = Float.valueOf( String.valueOf( pow((p2[1] - p1[1]),2) ) );
+		return Float.valueOf( String.valueOf( sqrt( xCalc + yCalc ) ) );
+	}
+	
 	public int getScreenWidth() {
 		return screenWidth;
 	}

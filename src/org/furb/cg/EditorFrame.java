@@ -69,7 +69,7 @@ public class EditorFrame extends JFrame {
 		Base.getInstace().setScreenWidth(screenWidth);
 		Base.getInstace().setScreenHeight(screenHeight);
 		
-		super.setTitle("[PolygonEditor] - FURB 2010 - Computação Gráfica");
+		super.setTitle("[PolygonEditor] - FURB 2010 - ComputaÁ„o Gr·fica");
 		super.setMinimumSize(new Dimension(screenWidth, screenHeight));
 		super.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		super.getContentPane().setLayout(new BorderLayout());

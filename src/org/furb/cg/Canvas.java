@@ -8,10 +8,6 @@ import static java.lang.Math.sin;
 import static java.lang.Math.sqrt;
 
 import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Image;
-import java.awt.Point;
-import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -19,7 +15,6 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.media.opengl.DebugGL;
@@ -27,11 +22,15 @@ import javax.media.opengl.GL;
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLEventListener;
 import javax.media.opengl.glu.GLU;
-import javax.swing.ImageIcon;
 
 import org.furb.cg.model.Poligono;
+import org.furb.cg.render.BoundBox;
+import org.furb.cg.render.Circle;
+import org.furb.cg.render.PreviewLine;
+import org.furb.cg.render.Spline;
 import org.furb.cg.util.Base;
 import org.furb.cg.util.Mode;
+import org.furb.cg.util.ScanLine;
 
 import com.sun.opengl.util.GLUT;
 
@@ -70,6 +69,12 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	private float			xValue				= 0.0f;
 	private float			yValue				= 0.0f;
 	
+	//Tipos de polígonos
+	private Spline spline = null;
+	private BoundBox boundBox = null;
+	private Circle circle = null;
+	private PreviewLine line = null;
+	
 	public Canvas()
 	{
 		left	=  0.0f;
@@ -98,6 +103,12 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		glDrawable.setGL(new DebugGL(gl));
 
 		gl.glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+		
+		//inicializa os objetos que representam os tipos de polígonos
+		spline = new Spline(gl);
+		boundBox = new BoundBox(gl);
+		circle = new Circle(gl);
+		line = new PreviewLine(gl);
 	}
 
 	/**
@@ -133,276 +144,69 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		{
 			//Seta o cor do poligono a ser renderizado
 			color = poligon.getColor();
-			final float red	= color.getRed()   / 255.0f;
-			final float gre	= color.getGreen() / 255.0f;
-			final float blu = color.getBlue()  / 255.0f;
-			gl.glColor3f(red,gre,blu);
-
-			if( poligon.getMode() == Mode.SPLINE ) 
+			
+			//verifica se foi selecionada alguma cor previamente
+			if(color != null)
 			{
-				this.drawSpline(poligon);
-			}
-			else
-			{
-				if( poligon.getMode() == Mode.CLOSE_POLYGON)
-				{
-					gl.glBegin(GL.GL_LINE_LOOP);
-				}
-				else
-				{
-					gl.glBegin(GL.GL_LINE_STRIP);
-				}
+				final float red	= color.getRed()   / 255.0f;
+				final float green	= color.getGreen() / 255.0f;
+				final float blue = color.getBlue()  / 255.0f;
+				gl.glColor3f(red,green ,blue);
 				
-				for( float[] pontos : poligon.getPontos() )
-				{
-					final float pontoX = pontos[0];
-					final float pontoY = pontos[1];
-					gl.glVertex2f(pontoX, pontoY);
-				}
+			}
+			
+			switch(poligon.getMode())
+			{
+				case SPLINE:
+					this.spline.draw(poligon);
+					break;
+					
+				default:
+					switch(mode)
+					{
+						case CLOSE_POLYGON:
+							gl.glBegin(GL.GL_LINE_LOOP);
+							break;
+							
+						default:
+							gl.glBegin(GL.GL_LINE_STRIP);
+							break;
+					}
 				
-				gl.glEnd();
-			}
-
-			this.drawBoxOnSelctedPoligons(poligon);
-			this.drawBoundBox(poligon);
-		}
-		
-		this.drawLinePreviw();
-		this.drawCirclePreview();
-	}
-	
-	/**
-	 * Metodo utilizado para desenhar a bound
-	 * box dos poligonos na tela do usuario.
-	 */
-	private void drawBoundBox(Poligono poligon)
-	{
-		if( showBoundBox ) 
-		{
-			gl.glEnable(GL.GL_LINE_STIPPLE);
-			gl.glLineStipple(1, (short) 0x00FF); 
-			gl.glColor3f(1.0f, 0.0f, 0.0f);
-			gl.glBegin(GL.GL_LINE_LOOP);
-				gl.glVertex2d(poligon.getMinX(),  poligon.getMinY());	
-				gl.glVertex2d(poligon.getMaxX(),  poligon.getMinY());	
-				gl.glVertex2d(poligon.getMaxX(),  poligon.getMaxY());	
-				gl.glVertex2d(poligon.getMinX(),  poligon.getMaxY());	
-			gl.glEnd();
-			gl.glDisable(GL.GL_LINE_STIPPLE);
-		}
-	}
-	
-	/**
-	 * Metodo utilizado para desenhar a bound
-	 * box dos poligonos selecionados.
-	 */
-	private void drawBoxOnSelctedPoligons(Poligono poligon)
-	{
-		if( poligon.isSelected() ) 
-		{
-			gl.glEnable(GL.GL_LINE_STIPPLE);
-			gl.glLineStipple(1, (short) 0x00FF); 
-			gl.glColor3f(0.0f, 1.0f, 0.0f);
-			gl.glBegin(GL.GL_LINE_LOOP);
-				gl.glVertex2d(poligon.getMinX(),  poligon.getMinY());	
-				gl.glVertex2d(poligon.getMaxX(),  poligon.getMinY());	
-				gl.glVertex2d(poligon.getMaxX(),  poligon.getMaxY());	
-				gl.glVertex2d(poligon.getMinX(),  poligon.getMaxY());	
-			gl.glEnd();
-			gl.glDisable(GL.GL_LINE_STIPPLE);
-		}
-	}
-	
-	/**
-	 * Metodo utilizado para desenhar
-	 * a spline na tela do usuario.
-	 */
-	private void drawSpline(Poligono poligon)
-	{
-		//Seta o cor do poligono a ser renderizado
-		gl.glPointSize(3.0f);
-		gl.glBegin(GL.GL_POINTS);
-		
-		for( float[] point : poligon.getPontos() )
-		{
-			gl.glVertex2f(point[0], point[1]);
-		}
-		
-		gl.glEnd();
-		
-		if( poligon.getPontos().size() >= 4 )
-		{
-			gl.glBegin(GL.GL_LINE_STRIP);
-			
-			float[] point = this.evaluateSplinePoint(poligon, 0, 0);
-			gl.glVertex2f(point[0], point[1]);
-			
-			for( int i = 0; i < poligon.getPontos().size() - 3; i+= 3)
-			{
-				for( int j = 1; j <= 10; j++ )
-				{
-					float[] newPoint = this.evaluateSplinePoint(poligon, i, ((float)j/10));
-					gl.glVertex2f(newPoint[0], newPoint[1]);
-				}
-			}
-			
-			gl.glEnd();
-		}
-	}
-	
-	/**
-	 * Recupera os pontos adicionados pelo usuario
-	 * com o listener do mouse.
-	 * @param poligon
-	 * @param numArco
-	 * @param t
-	 * @return
-	 */
-	private float[] evaluateSplinePoint(Poligono poligon, int numArco, float t) 
-	{
-	    float x = 0;
-	    float y = 0;
-	    float result;
-	    float[] points = new float[2];
-	    
-	    for (int pontoArco = 0; pontoArco <= 3; pontoArco++ )
-	    {
-	    	result = calculeBezier(pontoArco,t);
-	    	points = poligon.getPontos().get(numArco+pontoArco);
-	    	
-	    	x += result * points[0];
-	      	y += result * points[1];
-	    }
-	    
-	    return new float[]{ x , y };
-	}
-	
-	/**
-	 * Metodo utilizado para calcular os pontos para
-	 * desenhar a spline de bezier
-	 * @param i
-	 * @param t
-	 * @return
-	 */
-	private float calculeBezier(int i, float t) 
-	{
-		double base = (1 - t);
-	
-		switch (i) 
-		{
-			case 0: {
-				return (float) Math.pow(base, 3);
-			}
-			
-			case 1: {
-				return (float)(3 * t * Math.pow(base, 2));
-			}
-			
-			case 2: {
-				return (float)(3 * Math.pow(t, 2) * base);
-			}
-			
-			case 3: {
-				return (float)Math.pow(t, 3);
-			}
-		}
-		
-		return 0;
-	}
-	
-	/**
-	 * Desenha o preview da linha enquanto
-	 * o usuario move o mouse.
-	 */
-	private void drawLinePreviw()
-	{
-		if( linha != null )
-		{
-			gl.glColor3f(0.0f, 0.0f, 1.0f);
-			gl.glBegin(GL.GL_LINE_LOOP);
-			
-			for( float[] point : linha.getPontos() )
-			{
-				gl.glVertex2f(point[0], point[1]);
-			}
-			
-			gl.glEnd();
-		}
-	}
-	
-	/**
-	 * Desenha o preview do circulo enquanto
-	 * o usuario move o mouse
-	 */
-	private void drawCirclePreview()
-	{
-		if( atual != null )
-		{
-			if( !atual.getPontos().isEmpty() && atual.getMode() == Mode.CIRCLE ) 
-			{
-				if( linha != null && !linha.getPontos().isEmpty() ) 
-				{
-					Poligono poligon = new Poligono();
-					poligon.getPontos().add( atual.getPontos().get(0) );
-					poligon.getPontos().add( linha.getPontos().get(0) );
-					this.drawCircle(poligon);
-					
-					gl.glBegin(GL.GL_LINE_STRIP);
-					
-					for( float[] point : poligon.getPontos() ) { 
-						gl.glVertex2d( point[0], point[1] );	
+					for( float[] pontos : poligon.getPontos() )
+					{
+						final float pontoX = pontos[0];
+						final float pontoY = pontos[1];
+						gl.glVertex2f(pontoX, pontoY);
 					}
 					
 					gl.glEnd();
-				}
+				
+					break;
+			}
+			
+			if( poligon.isSelected() ) 
+			{
+				boundBox.drawOnSelctedPoligons(poligon);
+			}
+			
+			if( showBoundBox )
+			{
+				boundBox.draw(poligon);
 			}
 		}
-	}
-	
-	/**
-	 * Metodo utilizado para desenhar um circulo
-	 * na tela do usuario
-	 * @param poligon
-	 */
-	private void drawCircle(Poligono poligon) 
-	{
-		float[] origem	= poligon.getPontos().get(0);
-		float[] raio	= poligon.getPontos().get(1);
-		float radius	= Float.valueOf( String.valueOf( floor( distance(origem, raio) ) ) );
 		
-		poligon.getPontos().clear();
+		if( linha != null )
+		{
+			this.line.draw(linha);
+		}
 		
-		float angle   	= 	0.0f;
-		float vectorY1	=	origem[1] + radius;
-		float vectorX1	=	origem[0];
-		float vectorX;
-		float vectorY;
-
-		for(angle = 0.0f; angle <= (2.0f * PI); angle += 0.01f ) 
-		{		
-			vectorX = origem[0] + (radius * (float)sin((double)angle));
-			vectorY = origem[1] + (radius * (float)cos((double)angle));		
-			poligon.getPontos().add( new float[] { vectorX1 , vectorY1 } );
-			poligon.updateBoundBox();
-			vectorY1 = vectorY;
-			vectorX1 = vectorX;			
+		if( atual != null )
+		{
+			this.circle.drawPreview(atual, linha);
 		}
 	}
-	
-	/**
-	 * Formula usada para calcular a distancia
-	 * entre dois pontos.
-	 * @param p1
-	 * @param p2
-	 * @return
-	 */
-	private float distance(float[] p1, float[] p2) 
-	{
-		final float xCalc = Float.valueOf( String.valueOf( pow((p2[0] - p1[0]),2) ) );
-		final float yCalc = Float.valueOf( String.valueOf( pow((p2[1] - p1[1]),2) ) );
-		return Float.valueOf( String.valueOf( sqrt( xCalc + yCalc ) ) );
-	}
-	
+
 	/**
 	 * Adiciona um ponto na lista de poligonos
 	 * atualizando a boundbox do poligono.
@@ -424,124 +228,12 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		{
 			if( atual.getPontos().size() == 2 )
 			{
-				this.drawCircle(atual);
+				this.circle.draw(atual);
 				this.cancelSelection();
 			}
 		}
 	}
 	
-	/**
-	 * Metodo utilizado para validar a interseccao
-	 * entre o mouse o possivel objeto na tela
-	 * @return
-	 */
-	public void intersectionCheck(float x, float y)
-	{
-		//Cria um array para armazenar o poligonos pre-selcionados
-		List<Poligono> preSelecteds = new ArrayList<Poligono>();
-		selecionados.clear();
-		
-		//Para todos os poligonos da tela
-		for( Poligono poligon : poligonos )
-		{
-			//Nenhum esta selecionado ainda
-			poligon.setSelected(false);
-			
-			//Se o ponto do clique esta dentro de sua boundbox
-			if( poligon.isOverBoundBox(x, y) )
-			{
-				//Pre-selciona o poligono
-				preSelecteds.add(poligon);
-			}
-		}
-		
-		//Para todos os poligonos pre-selecionados
-		for( Poligono poligon : preSelecteds )
-		{
-			//Recupera todos os pares de pontos x,y do poligono pre-selecionado
-			Iterator<float[]> iterator = poligon.getPontos().iterator();
-			float[] ini = null;
-			float[] end = null;
-			boolean last = false;
-			int count = 0;
-			
-			while( true ) 
-			{
-				//Se comecou agora
-				if( ini == null ) 
-				{
-					//Recupera x,y do primeiro ponto
-					ini = iterator.next();
-				}
-				
-				//Se ainda ha pontos
-				if( iterator.hasNext() )
-				{
-					//Recupera o proximo x,y do segundo ponto
-					end = iterator.next();
-				}
-				else
-				{
-					//Senao so ha 1 ponto
-					end = poligon.getPontos().get(0);
-					last = true;
-				}
-				
-				//Se o ponto inicial x1,y1 for diferente do ponto final x2,y2
-				if( ini[1] != end[1] )
-				{
-					//Utiliza scan line para verifica se o ponto intersecta
-					if( this.scanLine(ini, end, x, y) )
-					{
-						//Soma a quantidade de interseccoes
-						count++;
-					}
-				}
-				
-				//Finaliza a linha
-				ini = end;
-				
-				//Se for a ultina, termina!
-				if( last )
-				{
-					break;
-				}
-			}
-			
-			//Se colidiu com valor impar de pontos
-			if( (count % 2) != 0 )
-			{
-				//Seleciona o poligono e adiciona na lista de selecionados
-				poligon.setSelected(true);
-				selecionados.add(poligon);
-			}
-		}
-	}
-	
-	/**
-	 * Verifica interseccao 2D
-	 * @param ini
-	 * @param end
-	 * @param x
-	 * @param y
-	 * @return
-	 */
-	private boolean scanLine(float[] ini, float[] end, float x, float y)
-	{
-		float det = ini[0] + (end[0] - ini[0]) * ( (y - ini[1]) / (end[1] - ini[1]) ); 
-
-		if ( Float.isInfinite(det) ) 
-		{
-			return false; // nao ha interseccao
-		}
-
-		if( det > x && y > Math.min(ini[1], end[1]) && y <= Math.max(ini[1], end[1]) )
-		{
-			return true; // ha interseccao
-		}
-
-		return false;
-	}
 	
 	/**
 	 * Finaliza as variaveis, criando assim
@@ -559,7 +251,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		atual	= null;
 		mode	= Mode.SELECTION;
 		
-		this.reRender();
+		this.refreshRender();
 	}
 	
 	/**
@@ -578,7 +270,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		atual.setMode( this.getMode() );
 		poligonos.add(atual);
 		
-		this.reRender();
+		this.refreshRender();
 	}
 	
 	/**
@@ -590,7 +282,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		linha	= null;
 		atual	= null;
 		
-		this.reRender();
+		this.refreshRender();
 	}
 	
 	/**
@@ -603,7 +295,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 			scale -= 0.05;
 		}
 		
-		this.reRender();
+		this.refreshRender();
 	}
 
 	/**
@@ -616,7 +308,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 			scale += 0.05;
 		}
 		
-		this.reRender();
+		this.refreshRender();
 	}
 	
 	/**
@@ -647,7 +339,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	 * a tela, verificando se o metodo nao
 	 * esta null;
 	 */
-	private void reRender()
+	private void refreshRender()
 	{
 		if( glDrawable != null ) {
 			glDrawable.display();
@@ -666,7 +358,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		}
 		
 		selecionados.clear();
-		this.reRender();
+		this.refreshRender();
 	}
 	
 	/**
@@ -686,7 +378,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		{
 			if( this.getMode() == Mode.SELECTION ) 
 			{
-				intersectionCheck(pointX, pointY);
+				selecionados = ScanLine.getInstace().intersectionCheck(poligonos, pointX, pointY);
 				xValue = pointX;
 				yValue = pointY;
 			}
@@ -700,7 +392,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 			this.cancelSelection();
 		}
 		
-		this.reRender();
+		this.refreshRender();
 	}
 	
 	/**
@@ -717,59 +409,66 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		
 		if( atual != null && !atual.getPontos().isEmpty() )
 		{
-			if( this.getMode() == Mode.OPEN_POLYGON )
+
+			
+			float[] pointA = null;
+			float[] pointB = null;
+			
+			switch(this.getMode())
 			{
-				float[] pointA = atual.getPontos().get( atual.getPontos().size() -1 );
-				float[] pointB = new float[]{ pointX , pointY };
-				linha = new Poligono();
-				linha.getPontos().add(pointA);
-				linha.getPontos().add(pointB);
-			}
-			else if ( this.getMode() == Mode.CLOSE_POLYGON)
-			{
-				if( atual.getPontos().size() == 1 ) 
-				{
-					float[] pointA = atual.getPontos().get( atual.getPontos().size() -1 );
-					float[] pointB = new float[]{ pointX , pointY };
+				case OPEN_POLYGON:
+					pointA = atual.getPontos().get( atual.getPontos().size() -1 );
+					pointB = new float[]{ pointX , pointY };
 					linha = new Poligono();
 					linha.getPontos().add(pointA);
 					linha.getPontos().add(pointB);
-				}
-				else if( atual.getPontos().size() == 2 )
-				{
-					float[] pointA = atual.getPontos().get(0);
-					float[] pointB = atual.getPontos().get(1);
-					float[] pointC = new float[]{ pointX , pointY };
-					linha = new Poligono();
-					linha.getPontos().add(pointA);
-					linha.getPontos().add(pointB);
-					linha.getPontos().add(pointC);
-				}
-				else 
-				{
-					float[] pointA = atual.getPontos().get(0);
-					float[] pointB = atual.getPontos().get(1);
-					float[] pointC = atual.getPontos().get( atual.getPontos().size() -1 );
-					float[] pointD = new float[]{ pointX , pointY };
-					linha = new Poligono();
-					linha.getPontos().add(pointA);
-					linha.getPontos().add(pointB);
-					linha.getPontos().add(pointC);
-					linha.getPontos().add(pointD);
-				}
-			}
-			else if ( this.getMode() == Mode.CIRCLE ) 
-			{
-				if( atual.getPontos().size() == 1 )
-				{
-					float[] pointA = new float[]{ pointX , pointY };
-					linha = new Poligono();
-					linha.getPontos().add( pointA );
-				}
+					break;
+					
+				case CLOSE_POLYGON:
+					if( atual.getPontos().size() == 1 ) 
+					{
+						pointA = atual.getPontos().get( atual.getPontos().size() -1 );
+						pointB = new float[]{ pointX , pointY };
+						linha = new Poligono();
+						linha.getPontos().add(pointA);
+						linha.getPontos().add(pointB);
+					}
+					else if( atual.getPontos().size() == 2 )
+					{
+						pointA = atual.getPontos().get(0);
+						pointB = atual.getPontos().get(1);
+						float[] pointC = new float[]{ pointX , pointY };
+						linha = new Poligono();
+						linha.getPontos().add(pointA);
+						linha.getPontos().add(pointB);
+						linha.getPontos().add(pointC);
+					}
+					else 
+					{
+						pointA = atual.getPontos().get(0);
+						pointB = atual.getPontos().get(1);
+						float[] pointC = atual.getPontos().get( atual.getPontos().size() -1 );
+						float[] pointD = new float[]{ pointX , pointY };
+						linha = new Poligono();
+						linha.getPontos().add(pointA);
+						linha.getPontos().add(pointB);
+						linha.getPontos().add(pointC);
+						linha.getPontos().add(pointD);
+					}
+					break;
+					
+				case CIRCLE:
+					if( atual.getPontos().size() == 1 )
+					{
+						pointA = new float[]{ pointX , pointY };
+						linha = new Poligono();
+						linha.getPontos().add( pointA );
+					}
+					break;
 			}
 		}
 		
-		this.reRender();
+		this.refreshRender();
 	}
 	
 	/**
@@ -785,49 +484,51 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		final MessageFormat mf = new MessageFormat("({0},{1})");
 		this.getWindow().setStatus( mf.format( new Object[]{ pointX , pointY } ) );
 		
-		if( this.getMode() == Mode.SELECTION )
+		switch(this.getMode())
 		{
-			if( selectedPoint != null )
-			{
-				if( selectedPointIdx >= 0 && selectedPointIdx < selectedPoint.getPontos().size() )
+			case SELECTION:
+				if( selectedPoint != null )
 				{
-					Poligono poligon = selectedPoint;
-					int idx = selectedPointIdx;
-					
-					poligon.resetBoundBox();
-					poligon.getPontos().get(idx)[0] += ( (xValue - pointX) * -1 );
-					poligon.getPontos().get(idx)[1] += ( (yValue - pointY) * -1 );
-					poligon.updateBoundBox();
-				}
-			}
-			else if ( selecionados != null )
-			{
-				for( Poligono poligon : selecionados )
-				{
-					for( float[] points : poligon.getPontos() )
+					if( selectedPointIdx >= 0 && selectedPointIdx < selectedPoint.getPontos().size() )
 					{
+						Poligono poligon = selectedPoint;
+						int idx = selectedPointIdx;
+						
 						poligon.resetBoundBox();
-						points[0] += ( (xValue - pointX) * -1 );
-						points[1] += ( (yValue - pointY) * -1 );
+						poligon.getPontos().get(idx)[0] += ( (xValue - pointX) * -1 );
+						poligon.getPontos().get(idx)[1] += ( (yValue - pointY) * -1 );
 						poligon.updateBoundBox();
 					}
 				}
-			}
-		}
-		else if ( this.getMode() == Mode.CIRCLE ) 
-		{
-			if( atual != null && atual.getPontos().size() == 1 )
-			{
-				float[] pointA = new float[]{ pointX , pointY };
-				linha = new Poligono();
-				linha.getPontos().add( pointA );
-			}
+				else if ( selecionados != null )
+				{
+					for( Poligono poligon : selecionados )
+					{
+						for( float[] points : poligon.getPontos() )
+						{
+							poligon.resetBoundBox();
+							points[0] += ( (xValue - pointX) * -1 );
+							points[1] += ( (yValue - pointY) * -1 );
+							poligon.updateBoundBox();
+						}
+					}
+				}
+				break;
+				
+			case CIRCLE:
+				if( atual != null && atual.getPontos().size() == 1 )
+				{
+					float[] pointA = new float[]{ pointX , pointY };
+					linha = new Poligono();
+					linha.getPontos().add( pointA );
+				}
+				break;
 		}
 		
 		xValue = pointX;
 		yValue = pointY;
 		
-		this.reRender();
+		this.refreshRender();
 	}
 	
 	/**
