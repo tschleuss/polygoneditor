@@ -1,12 +1,5 @@
 package org.furb.cg;
 
-import static java.lang.Math.PI;
-import static java.lang.Math.cos;
-import static java.lang.Math.floor;
-import static java.lang.Math.pow;
-import static java.lang.Math.sin;
-import static java.lang.Math.sqrt;
-
 import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -104,7 +97,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 
 		gl.glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 		
-		//inicializa os objetos que representam os tipos de polígonos
+		//inicializa os objetos que representam os tipos de poligonos
 		spline = new Spline(gl);
 		boundBox = new BoundBox(gl);
 		circle = new Circle(gl);
@@ -152,25 +145,28 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 				final float green	= color.getGreen() / 255.0f;
 				final float blue = color.getBlue()  / 255.0f;
 				gl.glColor3f(red,green ,blue);
-				
 			}
 			
 			switch(poligon.getMode())
 			{
-				case SPLINE:
+				case SPLINE: {
 					this.spline.draw(poligon);
 					break;
+				}
 					
-				default:
+				default: {
+					
 					switch(mode)
 					{
-						case CLOSE_POLYGON:
+						case CLOSE_POLYGON: {
 							gl.glBegin(GL.GL_LINE_LOOP);
 							break;
+						}
 							
-						default:
+						default: {
 							gl.glBegin(GL.GL_LINE_STRIP);
 							break;
+						}
 					}
 				
 					for( float[] pontos : poligon.getPontos() )
@@ -183,6 +179,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 					gl.glEnd();
 				
 					break;
+				}
 			}
 			
 			if( poligon.isSelected() ) 
@@ -416,15 +413,17 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 			
 			switch(this.getMode())
 			{
-				case OPEN_POLYGON:
+				case OPEN_POLYGON: {
 					pointA = atual.getPontos().get( atual.getPontos().size() -1 );
 					pointB = new float[]{ pointX , pointY };
 					linha = new Poligono();
 					linha.getPontos().add(pointA);
 					linha.getPontos().add(pointB);
 					break;
+				}
 					
-				case CLOSE_POLYGON:
+				case CLOSE_POLYGON: {
+					
 					if( atual.getPontos().size() == 1 ) 
 					{
 						pointA = atual.getPontos().get( atual.getPontos().size() -1 );
@@ -456,8 +455,10 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 						linha.getPontos().add(pointD);
 					}
 					break;
+				}
 					
-				case CIRCLE:
+				case CIRCLE: {
+					
 					if( atual.getPontos().size() == 1 )
 					{
 						pointA = new float[]{ pointX , pointY };
@@ -465,6 +466,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 						linha.getPontos().add( pointA );
 					}
 					break;
+				}
 			}
 		}
 		
@@ -486,7 +488,8 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		
 		switch(this.getMode())
 		{
-			case SELECTION:
+			case SELECTION: {
+				
 				if( selectedPoint != null )
 				{
 					if( selectedPointIdx >= 0 && selectedPointIdx < selectedPoint.getPontos().size() )
@@ -514,8 +517,10 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 					}
 				}
 				break;
+			}
 				
-			case CIRCLE:
+			case CIRCLE: {
+				
 				if( atual != null && atual.getPontos().size() == 1 )
 				{
 					float[] pointA = new float[]{ pointX , pointY };
@@ -523,6 +528,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 					linha.getPontos().add( pointA );
 				}
 				break;
+			}
 		}
 		
 		xValue = pointX;
@@ -537,10 +543,10 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	 * e/ou mouse.
 	 */
 	public void keyPressed(KeyEvent e) 
-	{
+	{		
 		final int key = e.getKeyCode();
 		final boolean closePoligon = ( key == KeyEvent.VK_F );
-		final boolean deleteObject = ( key == KeyEvent.VK_DELETE );
+		final boolean deleteObject = ( key == KeyEvent.VK_DELETE || key == KeyEvent.VK_BACK_SPACE );
 		
 		//Se for modo Poligono aberto e o usuario pressionar a tecla F
 		if( this.getMode() == Mode.OPEN_POLYGON && closePoligon )
