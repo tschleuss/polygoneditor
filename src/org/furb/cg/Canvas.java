@@ -6,6 +6,8 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +25,7 @@ import org.furb.cg.render.PreviewLine;
 import org.furb.cg.render.Spline;
 import org.furb.cg.util.Base;
 import org.furb.cg.util.Mode;
+import org.furb.cg.util.Rotation;
 import org.furb.cg.util.ScanLine;
 
 import com.sun.opengl.util.GLUT;
@@ -36,7 +39,7 @@ import com.sun.opengl.util.GLUT;
  * @author Luiz Diego Aquino
  * @since 17/04/2010
  */
-public class Canvas implements GLEventListener, KeyListener, MouseMotionListener, MouseListener {
+public class Canvas implements GLEventListener, KeyListener, MouseMotionListener, MouseListener, MouseWheelListener {
 	
 	private GL				gl				= null;
 	private GLU				glu				= null;
@@ -46,6 +49,8 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	private Mode			mode			= null;
 	private Color			color			= Color.BLACK;
 	private boolean			showBoundBox	= false;
+	
+	private boolean 		isRotating 		= false;
 
 	private float			left;
 	private float			right;
@@ -97,7 +102,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 
 		gl.glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 		
-		//inicializa os objetos que representam os tipos de poligonos
+		//inicializa os objetos que representam os tipos de polígonos
 		spline = new Spline(gl);
 		boundBox = new BoundBox(gl);
 		circle = new Circle(gl);
@@ -114,10 +119,10 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		 gl.glClear(GL.GL_COLOR_BUFFER_BIT);
 		 gl.glMatrixMode(GL.GL_MODELVIEW);
 		 gl.glLoadIdentity();
-
+			 
 		 glu.gluOrtho2D(left * scale, right * scale, bottom * scale, top * scale);
 		 gl.glColor3f(0.0f, 0.0f, 0.0f);
-
+		 
 		 //Desenha tudo
 		 this.drawPoligons();
 		 
@@ -133,6 +138,8 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	{
 		Color color = this.getColor();
 		
+		Mode poligonMode;
+		
 		for( Poligono poligon : poligonos )
 		{
 			//Seta o cor do poligono a ser renderizado
@@ -145,41 +152,64 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 				final float green	= color.getGreen() / 255.0f;
 				final float blue = color.getBlue()  / 255.0f;
 				gl.glColor3f(red,green ,blue);
+				
 			}
+			poligonMode = poligon.getMode();
 			
-			switch(poligon.getMode())
+			//não rotaciona circulos
+			if(poligonMode != Mode.CIRCLE){
+				poligon.setRotate(isRotating);
+			}
+
+			switch(poligonMode)
 			{
-				case SPLINE: {
+				case SPLINE:
 					this.spline.draw(poligon);
 					break;
-				}
 					
-				default: {
-					
-					switch(mode)
+				default:
+					/*
+					 * Esse método realiza a rotação, porém
+					 * não salva as novas coordenadas após a transformação
+					if(isRotating)
 					{
-						case CLOSE_POLYGON: {
+						gl.glPushMatrix();
+						gl.glTranslatef(centerX, centerY, 0.0f );
+						gl.glRotatef(rotateAngule, 0, 0, 1);
+						gl.glTranslatef(-centerX, -centerY, 0.0f );
+					}
+					*/
+					
+					switch(poligonMode)
+					{
+						case CLOSE_POLYGON:
 							gl.glBegin(GL.GL_LINE_LOOP);
 							break;
-						}
 							
-						default: {
+						default:
 							gl.glBegin(GL.GL_LINE_STRIP);
 							break;
-						}
 					}
-				
+					
 					for( float[] pontos : poligon.getPontos() )
 					{
 						final float pontoX = pontos[0];
 						final float pontoY = pontos[1];
+						
 						gl.glVertex2f(pontoX, pontoY);
+
 					}
-					
+
 					gl.glEnd();
+					
+					/*
+					if(isRotating)
+					{
+						gl.glPopMatrix(); 
+					}
+					*/
 				
 					break;
-				}
 			}
 			
 			if( poligon.isSelected() ) 
@@ -202,6 +232,8 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		{
 			this.circle.drawPreview(atual, linha);
 		}
+		
+		isRotating = false;
 	}
 
 	/**
@@ -373,15 +405,19 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		
 		if( e.getButton() == MouseEvent.BUTTON1 ) 
 		{
-			if( this.getMode() == Mode.SELECTION ) 
+			switch(this.getMode())
 			{
-				selecionados = ScanLine.getInstace().intersectionCheck(poligonos, pointX, pointY);
-				xValue = pointX;
-				yValue = pointY;
-			}
-			else
-			{
-				this.addPoint(pointX, pointY);	
+				case ROTATE:
+				case SELECTION:
+					selecionados = ScanLine.getInstace().intersectionCheck(poligonos, pointX, pointY);
+					xValue = pointX;
+					yValue = pointY;
+					break;
+				
+				default:
+					this.addPoint(pointX, pointY);	
+					break;
+			
 			}
 		} 
 		else if ( e.getButton() == MouseEvent.BUTTON3 ) 
@@ -413,17 +449,15 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 			
 			switch(this.getMode())
 			{
-				case OPEN_POLYGON: {
+				case OPEN_POLYGON:
 					pointA = atual.getPontos().get( atual.getPontos().size() -1 );
 					pointB = new float[]{ pointX , pointY };
 					linha = new Poligono();
 					linha.getPontos().add(pointA);
 					linha.getPontos().add(pointB);
 					break;
-				}
 					
-				case CLOSE_POLYGON: {
-					
+				case CLOSE_POLYGON:
 					if( atual.getPontos().size() == 1 ) 
 					{
 						pointA = atual.getPontos().get( atual.getPontos().size() -1 );
@@ -455,10 +489,8 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 						linha.getPontos().add(pointD);
 					}
 					break;
-				}
 					
-				case CIRCLE: {
-					
+				case CIRCLE:
 					if( atual.getPontos().size() == 1 )
 					{
 						pointA = new float[]{ pointX , pointY };
@@ -466,7 +498,6 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 						linha.getPontos().add( pointA );
 					}
 					break;
-				}
 			}
 		}
 		
@@ -488,8 +519,8 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		
 		switch(this.getMode())
 		{
-			case SELECTION: {
-				
+			case ROTATE: 
+			case SELECTION:
 				if( selectedPoint != null )
 				{
 					if( selectedPointIdx >= 0 && selectedPointIdx < selectedPoint.getPontos().size() )
@@ -517,10 +548,8 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 					}
 				}
 				break;
-			}
 				
-			case CIRCLE: {
-				
+			case CIRCLE:
 				if( atual != null && atual.getPontos().size() == 1 )
 				{
 					float[] pointA = new float[]{ pointX , pointY };
@@ -528,7 +557,6 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 					linha.getPontos().add( pointA );
 				}
 				break;
-			}
 		}
 		
 		xValue = pointX;
@@ -543,7 +571,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	 * e/ou mouse.
 	 */
 	public void keyPressed(KeyEvent e) 
-	{		
+	{
 		final int key = e.getKeyCode();
 		final boolean closePoligon = ( key == KeyEvent.VK_F );
 		final boolean deleteObject = ( key == KeyEvent.VK_DELETE || key == KeyEvent.VK_BACK_SPACE );
@@ -623,5 +651,25 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 
 	public void setColor(Color color) {
 		this.color = color;
+	}
+
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		
+		final int angulo = 5;
+		
+		if(this.getMode() == Mode.ROTATE){
+			
+	        int notches = e.getWheelRotation();
+	        
+	        if (notches < 0) {
+	        	Rotation.getInstace().setAngle(-angulo);
+	        }else{
+	        	Rotation.getInstace().setAngle(angulo);
+	        }
+	        
+	        isRotating = true;
+	        refreshRender();
+		}
+		
 	}
 }

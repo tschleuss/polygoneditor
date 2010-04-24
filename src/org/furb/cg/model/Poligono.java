@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.furb.cg.util.Mode;
+import org.furb.cg.util.Rotation;
 
 /**
  * Representa a estrutura dos poligonos.
@@ -26,6 +27,8 @@ public class Poligono {
 	private float			minX		= Float.MAX_VALUE;
 	private float			maxY		= Float.MIN_VALUE;
 	private float			minY		= Float.MAX_VALUE;
+	private float			centerX  	= Float.MAX_VALUE;;
+	private float			centerY		= Float.MAX_VALUE;;
 	
 	public Poligono() {
 		super();
@@ -51,6 +54,17 @@ public class Poligono {
 			if ( vY > maxY ) { maxY = vY; }
 			if ( vY < minY ) { minY = vY; }
 		}
+		
+		
+		//centros da boundbox
+		centerX = maxX - minX;
+		centerX = centerX / 2;
+		centerX += minX;
+		
+		centerY = maxY - minY;
+		centerY = centerY / 2;
+		centerY += minY;
+
 	}
 	
 	/**
@@ -149,4 +163,46 @@ public class Poligono {
 	public void setColor(Color color) {
 		this.color = color;
 	}
+
+	public void setCenterX(float centerX) {
+		this.centerX = centerX;
+	}
+
+	public float getCenterX() {
+		return centerX;
+	}
+
+	public void setCenterY(float centerY) {
+		this.centerY = centerY;
+	}
+
+	public float getCenterY() {
+		return centerY;
+	}
+	
+	public void setRotate(boolean rotate) {
+		if(rotate){
+			rotatePoints();
+		}
+	}
+	
+	private void rotatePoints(){
+		
+		for( float[] pontos : this.getPontos() )
+		{
+			final float pontoX = pontos[0];
+			final float pontoY = pontos[1];
+			
+			if(this.isSelected()){
+				float newXY[] = Rotation.getInstace().rotate(centerX, centerY, pontoX, pontoY);
+				
+				pontos[0]+= newXY[0];
+				pontos[1]+= newXY[1];
+			}
+		}
+		
+		this.resetBoundBox();
+		this.updateBoundBox();
+	}
+	
 }

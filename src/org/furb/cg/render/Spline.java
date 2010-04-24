@@ -4,6 +4,7 @@ import javax.media.opengl.GL;
 
 import org.furb.cg.model.Poligono;
 import org.furb.cg.util.Bezier;
+import org.furb.cg.util.Rotation;
 
 /**
  * Classe responsavel pelo desenho de uma spline
@@ -12,7 +13,7 @@ import org.furb.cg.util.Bezier;
  * @since 21/04/2010
  */
 public class Spline extends Base{
-
+	
 	public Spline(GL gl) {
 		super(gl);
 	}
@@ -24,6 +25,7 @@ public class Spline extends Base{
 	@Override
 	public void draw(Poligono poligon)
 	{
+		
 		//Seta o cor do poligono a ser renderizado
 		gl.glPointSize(3.0f);
 		gl.glBegin(GL.GL_POINTS);
@@ -47,11 +49,13 @@ public class Spline extends Base{
 				for( int j = 1; j <= 10; j++ )
 				{
 					float[] newPoint = Bezier.getInstace().evaluateSplinePoint(poligon, i, ((float)j/10));
+					
 					gl.glVertex2f(newPoint[0], newPoint[1]);
 				}
 			}
 			
 			gl.glEnd();
+			
 		}
 	}
 	

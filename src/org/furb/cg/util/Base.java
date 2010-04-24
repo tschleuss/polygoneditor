@@ -69,6 +69,24 @@ public class Base {
 		
 		return Math.round(newY);
 	}
+	
+	public float[] rotacionarXY (float x, float y, float angulo)
+	{
+		double radianos = (angulo * Math.PI) / 180;
+		
+		double cosAngulo = Math.cos(radianos);
+		double sinAngulo = Math.sin(radianos);
+		
+		float _x = (float) ((x * cosAngulo) - (y * sinAngulo));
+		float _y = (float) ((y * cosAngulo) + (x * sinAngulo));
+		
+		float [] valores = new float[2];
+		valores [0] = _x; 
+		valores [1] = _y; 
+		
+		return valores;
+	}
+	
 
 	/**
 	 * Formula usada para calcular a distancia
@@ -77,7 +95,7 @@ public class Base {
 	 * @param p2
 	 * @return
 	 */
-	public float distance(float[] p1, float[] p2) 
+	public float distancia(float[] p1, float[] p2) 
 	{
 		final float xCalc = Float.valueOf( String.valueOf( pow((p2[0] - p1[0]),2) ) );
 		final float yCalc = Float.valueOf( String.valueOf( pow((p2[1] - p1[1]),2) ) );

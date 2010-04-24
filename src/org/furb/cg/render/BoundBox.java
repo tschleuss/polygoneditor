@@ -34,6 +34,8 @@ public class BoundBox extends Base{
 			gl.glVertex2d(poligon.getMinX(),  poligon.getMaxY());	
 		gl.glEnd();
 		gl.glDisable(GL.GL_LINE_STIPPLE);
+		
+		drawCenterPoint(poligon);
 	}
 	
 	/**
@@ -52,6 +54,15 @@ public class BoundBox extends Base{
 			gl.glVertex2d(poligon.getMinX(),  poligon.getMaxY());	
 		gl.glEnd();
 		gl.glDisable(GL.GL_LINE_STIPPLE);
+		
+		drawCenterPoint(poligon);
+	}
+	
+	private void drawCenterPoint(Poligono poligon){
+		 gl.glPointSize(3.0f);
+		 gl.glBegin(GL.GL_POINTS);
+			gl.glVertex2f(poligon.getCenterX() ,poligon.getCenterY());
+		 gl.glEnd();
 	}
 	
 }

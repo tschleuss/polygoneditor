@@ -32,7 +32,7 @@ public class Circle extends org.furb.cg.render.Base {
 	public void draw(Poligono poligon) {
 		float[] origem	= poligon.getPontos().get(0);
 		float[] raio	= poligon.getPontos().get(1);
-		float radius	= Float.valueOf( String.valueOf( floor( Base.getInstace().distance(origem, raio) ) ) );
+		float radius	= Float.valueOf( String.valueOf( floor( Base.getInstace().distancia(origem, raio) ) ) );
 		
 		poligon.getPontos().clear();
 		

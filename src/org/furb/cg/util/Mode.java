@@ -13,7 +13,9 @@ public enum Mode {
 	CIRCLE 			(3),
 	SPLINE  		(4),
 	SELECTION		(5),
-	DO_NOTHING		(6);
+	ROTATE			(6),
+	SCALE			(7),
+	DO_NOTHING		(8);
 	
 	private int mode;
 	
