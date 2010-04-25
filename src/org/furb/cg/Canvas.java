@@ -8,6 +8,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.nio.FloatBuffer;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,13 +58,18 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	private float			bottom;
 	private float			top;
 	
+
+	
 	private List<Poligono>	poligonos			= new ArrayList<Poligono>();
 	private List<Poligono>	selecionados		= new ArrayList<Poligono>();
 	private int				selectedPointIdx	= 0;
 	private Poligono		selectedPoint		= null;
 	private Poligono		atual				= null;
 	private Poligono		linha				= null;
+	
 	private float 			scale				= 1.0f;
+	private float 			panX				= 0.0f;
+	private float 			panY				= 0.0f;
 	private float			xValue				= 0.0f;
 	private float			yValue				= 0.0f;
 	
@@ -76,9 +82,9 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	public Canvas()
 	{
 		left	=  0.0f;
-		right	=  1000.0f;
+		right	=  0.0f;
 		bottom	=  0.0f;
-		top		=  600.0f;
+		top		=  0.0f;
 		
 		Base.getInstace().setLeft(left);
 		Base.getInstace().setRight(right);
@@ -109,6 +115,16 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		line = new PreviewLine(gl);
 	}
 
+	public void updateDimensions(float height, float width){
+		right = width;
+		top = height;
+		
+		Base.getInstace().setRight(right);
+		Base.getInstace().setTop(top);
+		
+		this.refreshRender();
+	}
+	
 	/**
 	 * Metodo chamado pelo listener do JOGL
 	 * ou por algum outro metodo, para redesenhar
@@ -120,7 +136,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		 gl.glMatrixMode(GL.GL_MODELVIEW);
 		 gl.glLoadIdentity();
 			 
-		 glu.gluOrtho2D(left * scale, right * scale, bottom * scale, top * scale);
+		 glu.gluOrtho2D((left * scale) + panX, (right * scale)  + panX, (bottom * scale) + panY, (top * scale) + panY);
 		 gl.glColor3f(0.0f, 0.0f, 0.0f);
 		 
 		 //Desenha tudo
@@ -277,6 +293,8 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		}
 		
 		scale	= 1.0f;
+		panX	= 0.0f;
+		panY	= 0.0f;
 		atual	= null;
 		mode	= Mode.SELECTION;
 		
@@ -436,6 +454,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	{
 		final float pointX = Base.getInstace().normalizarX( Float.valueOf( e.getX() ) );
 		final float pointY = Base.getInstace().normalizarY( Float.valueOf( e.getY() ) );
+		
 		
 		final MessageFormat mf = new MessageFormat("({0},{1})");
 		this.getWindow().setStatus( mf.format( new Object[]{ pointX , pointY } ) );
@@ -638,9 +657,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 
 	public void setMode(Mode mode)
 	{
-		if( mode != Mode.DO_NOTHING ) {
-			this.mode = mode;
-		}
+		this.mode = mode;
 		
 		this.cancelSelection();
 	}
@@ -655,20 +672,46 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 
 	public void mouseWheelMoved(MouseWheelEvent e) {
 		
-		final int angulo = 5;
+		int move = 5;
+		int notches = e.getWheelRotation();
 		
-		if(this.getMode() == Mode.ROTATE){
+        if (notches < 0) {
+        	move = -move;
+        }
+		
+		boolean refresh = false;
+		
+		switch(this.getMode()){
 			
-	        int notches = e.getWheelRotation();
-	        
-	        if (notches < 0) {
-	        	Rotation.getInstace().setAngle(-angulo);
-	        }else{
-	        	Rotation.getInstace().setAngle(angulo);
-	        }
-	        
-	        isRotating = true;
-	        refreshRender();
+			case ROTATE:
+
+		        Rotation.getInstace().setAngle(move);
+
+		        isRotating = true;
+				refresh = true;
+				break;
+				
+			case PAN_HORIZONTAL:
+				
+				panX += (move * 5);
+				
+				Base.getInstace().setPanX(panX);
+				
+				refresh = true;
+				break;
+			case PAN_VERTICAL:
+				
+				panY += (move * 5);
+				
+				Base.getInstace().setPanY(panY);
+				
+				refresh = true;
+				break;
+		
+		}
+		
+		if(refresh){
+			refreshRender();
 		}
 		
 	}

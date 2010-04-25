@@ -16,12 +16,15 @@ import static java.lang.Math.sqrt;
 public class Base {
 
 	private static Base		base = new Base();
-	private int				screenWidth;
-	private int				screenHeight;
+	private float			screenWidth;
+	private float			screenHeight;
 	private float			left;
 	private float			right;
 	private float			bottom;
 	private float			top;
+	
+	private float 			panX;
+	private float 			panY;
 	
 	private Base() {
 		super();
@@ -49,8 +52,8 @@ public class Base {
 	{
 		final float xOrigem = screenWidth;		
 		final float xDestino = (right - left);
-		final float newX = ( x * ( xDestino / xOrigem ) ) + left;
-		return Math.round(newX);
+		final float newX = ( x * ( xDestino / xOrigem ) ) + left + panX;
+		return newX;
 	}
 	
 	/**
@@ -65,9 +68,9 @@ public class Base {
 		
 		final float yOrigem = screenHeight;		
 		final float yDestino = (bottom - (top + toolbarFix) );
-		final float newY = ( y * ( yDestino / yOrigem ) ) + top;
+		final float newY = ( y * ( yDestino / yOrigem ) ) + top + panY;
 		
-		return Math.round(newY);
+		return newY;
 	}
 	
 	public float[] rotacionarXY (float x, float y, float angulo)
@@ -102,19 +105,19 @@ public class Base {
 		return Float.valueOf( String.valueOf( sqrt( xCalc + yCalc ) ) );
 	}
 	
-	public int getScreenWidth() {
+	public float getScreenWidth() {
 		return screenWidth;
 	}
 
-	public void setScreenWidth(int screenWidth) {
+	public void setScreenWidth(float screenWidth) {
 		this.screenWidth = screenWidth;
 	}
 
-	public int getScreenHeight() {
+	public float getScreenHeight() {
 		return screenHeight;
 	}
 
-	public void setScreenHeight(int screenHeight) {
+	public void setScreenHeight(float screenHeight) {
 		this.screenHeight = screenHeight;
 	}
 
@@ -148,5 +151,21 @@ public class Base {
 
 	public void setTop(float top) {
 		this.top = top;
+	}
+
+	public void setPanX(float panX) {
+		this.panX = panX;
+	}
+
+	public float getPanX() {
+		return panX;
+	}
+
+	public void setPanY(float panY) {
+		this.panY = panY;
+	}
+
+	public float getPanY() {
+		return panY;
 	}
 }

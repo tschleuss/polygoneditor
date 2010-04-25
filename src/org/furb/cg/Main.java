@@ -16,14 +16,21 @@ public class Main {
 	{
         EventQueue.invokeLater(new Runnable() 
         {
+        	feedback frame1 = null;
         	EditorFrame frame = null;
         	
             public void run() 
-            {	
+            {
         		frame = new EditorFrame();
         		frame.setLocationRelativeTo(null);
         		frame.setVisible(true);
         		frame.getCanvas().requestFocus();
+        		
+        		/*
+        		frame1 = new feedback();
+        		frame1.setLocationRelativeTo(null);
+        		frame1.setVisible(true);
+        		*/
             }
         });
 	}

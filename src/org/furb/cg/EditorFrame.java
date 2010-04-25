@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -18,6 +20,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
@@ -35,7 +38,7 @@ import org.furb.cg.util.Mode;
  * @author Luiz Diego Aquino
  * @since 17/04/2010
  */
-public class EditorFrame extends JFrame {
+public class EditorFrame extends JFrame implements ComponentListener{
 
 	private static final long serialVersionUID = 3172688540921699213L;
 	
@@ -58,8 +61,10 @@ public class EditorFrame extends JFrame {
     private JPanel 		pnStatus		= null;
     private JButton		zoomIn			= null;
     private JButton		zoomOut			= null;
+    private JButton		panVertical		= null;
+    private JButton		panHorizontal	= null;    
     private JButton		btBoundBox		= null;
-    
+
     /**
      * Construtor da classe
      */
@@ -68,16 +73,16 @@ public class EditorFrame extends JFrame {
 		final int screenWidth = 1000;
 		final int screenHeight = 600;
 		
-		Base.getInstace().setScreenWidth(screenWidth);
-		Base.getInstace().setScreenHeight(screenHeight);
-		
 		super.setTitle("[PolygonEditor] - FURB 2010 - Computacao Gráfica");
+		super.setPreferredSize(new Dimension(screenWidth, screenHeight));
 		super.setMinimumSize(new Dimension(screenWidth, screenHeight));
 		super.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		super.getContentPane().setLayout(new BorderLayout());
 		
 		this.initJOGL();
 		this.initGUI();
+		
+		this.addComponentListener(this);
 	}
 	
 	/**
@@ -104,6 +109,8 @@ public class EditorFrame extends JFrame {
         rotatePolygon	= new JButton();
         zoomIn			= new JButton();
         zoomOut			= new JButton();
+        panVertical		= new JButton();
+        panHorizontal	= new JButton();
         btBoundBox		= new JButton();
         
         jogl.setWindow(this);
@@ -122,9 +129,11 @@ public class EditorFrame extends JFrame {
         this.initButton("Desenhar uma spline",		"A spline será exibida a partir do 4º ponto de desenho",				btSpline,		Mode.SPLINE,			"spline.png"		, true, 	true	);
         this.initButton("Selecionar poligono", 		"",																		selectPolygon, 	Mode.SELECTION,			"select.png" 		, true,		true	);
         this.initButton("Rotacionar poligono", 		"Utilize o scroll do mouse para rotacionar os objetos selecionados",	rotatePolygon, 	Mode.ROTATE,			"rotacao.png" 		, true,		true	);
-        this.initButton("Escalar poligono", 		"",																		scalePolygon, 	Mode.SCALE,				"scale.png" 		, true,		true	);
+        this.initButton("Escalonar poligono", 		"",																		scalePolygon, 	Mode.SCALE,				"scale.png" 		, true,		true	);
         this.initButton("Incrementar Zoom", 		"",																		zoomIn, 		Mode.DO_NOTHING,		"zoomIn.png"		, false,	false	);
         this.initButton("Decrementar Zoom", 		"",																		zoomOut, 		Mode.DO_NOTHING,		"zoomOut.png"		, false,	false	);
+        this.initButton("Pan Vertical", 			"Utilize o scroll do mouse para deslocar verticalmente a câmera",		panVertical, 	Mode.PAN_VERTICAL,		"panVertical.png"	, false,	true	);
+        this.initButton("Pan Horizontal", 			"Utilize o scroll do mouse para deslocar horizontalmente a câmera",		panHorizontal, 	Mode.PAN_HORIZONTAL,	"panHorizontal.png"	, false,	true	);
         this.initButton("Selecionar uma cor",		"",																		btCorPadrao,	Mode.DO_NOTHING, 		"paint.png"			, false, 	false	);
         this.initButton("Exibir boundbox",			"",																		btBoundBox,		Mode.DO_NOTHING, 		"boundbox.png"		, false, 	false	);
         this.initButton("Finalizar o programa",		"",																		btSair, 	  	Mode.DO_NOTHING, 		"exit.png"			, true, 	true	);
@@ -325,6 +334,12 @@ public class EditorFrame extends JFrame {
     	        zoomOut.setBackground(def);
     	        zoomOut.setEnabled(true);
     	        
+    	        panVertical.setBackground(def);
+    	        panVertical.setEnabled(true);
+    	        
+    	        panHorizontal.setBackground(def);
+    	        panHorizontal.setEnabled(true);
+    	        
     	        if( changeColor ) {
     	        	((JButton)e.getSource()).setBackground(Color.DARK_GRAY);
     	        }
@@ -345,4 +360,26 @@ public class EditorFrame extends JFrame {
     public void setStatus( String status ) {
     	lbStatus.setText(" " + status );	
     }
+
+
+	public void componentResized(ComponentEvent e) {
+		
+		float screenWidth = this.getWidth();
+		float screenHeight = this.getHeight();
+		
+		Base.getInstace().setScreenWidth(screenWidth);
+		Base.getInstace().setScreenHeight(screenHeight);
+		
+		this.jogl.updateDimensions(screenHeight, screenWidth);
+	}
+
+    
+	public void componentHidden(ComponentEvent e) {
+	}
+
+	public void componentMoved(ComponentEvent e) {
+	}
+
+	public void componentShown(ComponentEvent e) {
+	}
 }

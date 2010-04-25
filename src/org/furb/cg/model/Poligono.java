@@ -55,7 +55,6 @@ public class Poligono {
 			if ( vY < minY ) { minY = vY; }
 		}
 		
-		
 		//centros da boundbox
 		centerX = maxX - minX;
 		centerX = centerX / 2;
@@ -94,9 +93,9 @@ public class Poligono {
 	 */
 	public void resetBoundBox()
 	{
-		maxX = Float.MIN_VALUE;
+		maxX = -Float.MAX_VALUE;
 		minX = Float.MAX_VALUE;
-		maxY = Float.MIN_VALUE;
+		maxY = -Float.MAX_VALUE;
 		minY = Float.MAX_VALUE;
 	}
 
