@@ -342,6 +342,8 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 			scale -= 0.05;
 		}
 		
+		Base.getInstace().setScale(scale);
+		
 		this.refreshRender();
 	}
 
@@ -354,6 +356,8 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		if( scale < 100.0 ) {
 			scale += 0.05;
 		}
+		
+		Base.getInstace().setScale(scale);
 		
 		this.refreshRender();
 	}
@@ -432,6 +436,8 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 					yValue = pointY;
 					break;
 				
+				case DO_NOTHING:
+					break;
 				default:
 					this.addPoint(pointX, pointY);	
 					break;

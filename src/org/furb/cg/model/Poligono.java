@@ -144,6 +144,8 @@ public class Poligono {
 	}
 
 	public void setSelected(boolean selected) {
+		this.resetBoundBox();
+		this.updateBoundBox();
 		this.selected = selected;
 	}
 

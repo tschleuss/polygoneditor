@@ -23,6 +23,8 @@ public class Base {
 	private float			bottom;
 	private float			top;
 	
+	private float 			scale = 1.0f;
+	
 	private float 			panX;
 	private float 			panY;
 	
@@ -50,9 +52,14 @@ public class Base {
 	 */
 	public float normalizarX(float x)
 	{
+		
 		final float xOrigem = screenWidth;		
-		final float xDestino = (right - left);
-		final float newX = ( x * ( xDestino / xOrigem ) ) + left + panX;
+		float xDestino = right - left;
+		
+		float newX = ( x * ( xDestino / xOrigem ) ) + left;
+		
+		newX = (newX * scale) + panX;
+		
 		return newX;
 	}
 	
@@ -67,8 +74,11 @@ public class Base {
 		final float toolbarFix = 90.0f;
 		
 		final float yOrigem = screenHeight;		
-		final float yDestino = (bottom - (top + toolbarFix) );
-		final float newY = ( y * ( yDestino / yOrigem ) ) + top + panY;
+		float yDestino = bottom - (top + toolbarFix);
+		
+		float newY = ( y * ( yDestino / yOrigem ) ) + top;
+		
+		newY = (newY * scale) + panY;
 		
 		return newY;
 	}
@@ -167,5 +177,13 @@ public class Base {
 
 	public float getPanY() {
 		return panY;
+	}
+
+	public void setScale(float scale) {
+		this.scale = scale;
+	}
+
+	public float getScale() {
+		return scale;
 	}
 }
