@@ -82,9 +82,9 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	public Canvas()
 	{
 		left	=  0.0f;
-		right	=  0.0f;
+		right	=  400;
 		bottom	=  0.0f;
-		top		=  0.0f;
+		top		=  1000;
 		
 		Base.getInstace().setLeft(left);
 		Base.getInstace().setRight(right);
@@ -133,7 +133,6 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	public void display(GLAutoDrawable drawable) 
 	{
 		 gl.glClear(GL.GL_COLOR_BUFFER_BIT);
-		 gl.glMatrixMode(GL.GL_MODELVIEW);
 		 gl.glLoadIdentity();
 			 
 		 glu.gluOrtho2D((left * scale) + panX, (right * scale)  + panX, (bottom * scale) + panY, (top * scale) + panY);
@@ -216,9 +215,6 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 					}
 					
 					gl.glEnd();
-
-					
-					gl.glPopMatrix(); 
 					
 					/*
 					if(isRotating)
@@ -460,17 +456,16 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	 */
 	public void mouseMoved(MouseEvent e) 
 	{
+
 		final float pointX = Base.getInstace().normalizarX( Float.valueOf( e.getX() ) );
 		final float pointY = Base.getInstace().normalizarY( Float.valueOf( e.getY() ) );
 		
-		
 		final MessageFormat mf = new MessageFormat("({0},{1})");
 		this.getWindow().setStatus( mf.format( new Object[]{ pointX , pointY } ) );
-		
+
 		if( atual != null && !atual.getPontos().isEmpty() )
 		{
 
-			
 			float[] pointA = null;
 			float[] pointB = null;
 			
@@ -527,8 +522,9 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 					break;
 			}
 		}
-		
+
 		this.refreshRender();
+		
 	}
 	
 	/**
@@ -648,7 +644,14 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	}
 
 	public void reshape(GLAutoDrawable glDrawable, int windowX, int windowY, int maxX, int maxY) {
-		return;
+		System.out.println("teste");
+		
+		/*
+		Base.getInstace().setScreenWidth(maxX);
+		Base.getInstace().setScreenHeight(maxY);
+		
+		this.updateDimensions(maxX, maxY);
+		*/
 	}
 
 	public EditorFrame getWindow() {

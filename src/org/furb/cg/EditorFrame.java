@@ -38,7 +38,7 @@ import org.furb.cg.util.Mode;
  * @author Luiz Diego Aquino
  * @since 17/04/2010
  */
-public class EditorFrame extends JFrame implements ComponentListener{
+public class EditorFrame extends JFrame {
 
 	private static final long serialVersionUID = 3172688540921699213L;
 	
@@ -73,16 +73,16 @@ public class EditorFrame extends JFrame implements ComponentListener{
 		final int screenWidth = 1000;
 		final int screenHeight = 600;
 		
+		Base.getInstace().setScreenWidth(screenWidth);
+		Base.getInstace().setScreenHeight(screenHeight);
+		
 		super.setTitle("[PolygonEditor] - FURB 2010 - Computacao Gráfica");
-		super.setPreferredSize(new Dimension(screenWidth, screenHeight));
 		super.setMinimumSize(new Dimension(screenWidth, screenHeight));
 		super.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		super.getContentPane().setLayout(new BorderLayout());
 		
 		this.initJOGL();
 		this.initGUI();
-		
-		this.addComponentListener(this);
 	}
 	
 	/**
@@ -360,26 +360,4 @@ public class EditorFrame extends JFrame implements ComponentListener{
     public void setStatus( String status ) {
     	lbStatus.setText(" " + status );	
     }
-
-
-	public void componentResized(ComponentEvent e) {
-		
-		float screenWidth = this.getWidth();
-		float screenHeight = this.getHeight();
-		
-		Base.getInstace().setScreenWidth(screenWidth);
-		Base.getInstace().setScreenHeight(screenHeight);
-		
-		this.jogl.updateDimensions(screenHeight, screenWidth);
-	}
-
-    
-	public void componentHidden(ComponentEvent e) {
-	}
-
-	public void componentMoved(ComponentEvent e) {
-	}
-
-	public void componentShown(ComponentEvent e) {
-	}
 }
