@@ -82,9 +82,9 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	public Canvas()
 	{
 		left	=  0.0f;
-		right	=  400;
 		bottom	=  0.0f;
-		top		=  1000;
+		right	=  1000;
+		top		=  600;
 		
 		Base.getInstace().setLeft(left);
 		Base.getInstace().setRight(right);
@@ -116,13 +116,14 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	}
 
 	public void updateDimensions(float height, float width){
-		right = width;
-		top = height;
+		right = height + 20;
+		top = width + 100;
+
+		Base.getInstace().setScreenWidth(right);
+		Base.getInstace().setScreenHeight(top);
 		
 		Base.getInstace().setRight(right);
 		Base.getInstace().setTop(top);
-		
-		this.refreshRender();
 	}
 	
 	/**
@@ -133,6 +134,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	public void display(GLAutoDrawable drawable) 
 	{
 		 gl.glClear(GL.GL_COLOR_BUFFER_BIT);
+		 gl.glMatrixMode(GL.GL_MODELVIEW);
 		 gl.glLoadIdentity();
 			 
 		 glu.gluOrtho2D((left * scale) + panX, (right * scale)  + panX, (bottom * scale) + panY, (top * scale) + panY);
@@ -205,7 +207,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 							gl.glBegin(GL.GL_LINE_STRIP);
 							break;
 					}
-					System.out.println("\n");
+
 					for( float[] pontos : poligon.getPontos() )
 					{
 						final float pontoX = pontos[0];
@@ -644,14 +646,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	}
 
 	public void reshape(GLAutoDrawable glDrawable, int windowX, int windowY, int maxX, int maxY) {
-		System.out.println("teste");
-		
-		/*
-		Base.getInstace().setScreenWidth(maxX);
-		Base.getInstace().setScreenHeight(maxY);
-		
 		this.updateDimensions(maxX, maxY);
-		*/
 	}
 
 	public EditorFrame getWindow() {

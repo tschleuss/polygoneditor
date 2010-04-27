@@ -58,6 +58,7 @@ public class EditorFrame extends JFrame {
     private JButton 	btSpline		= null;
     private JLabel 		lbStatus		= null;
     private JToolBar 	pnBotoes		= null;
+    private JPanel 		pnCanvas		= null;
     private JPanel 		pnStatus		= null;
     private JButton		zoomIn			= null;
     private JButton		zoomOut			= null;
@@ -232,6 +233,14 @@ public class EditorFrame extends JFrame {
 	 */
 	private void initJOGL() 
 	{
+		
+		pnCanvas = new JPanel();
+		
+		pnCanvas.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+		pnCanvas.setLayout(new BorderLayout());
+        
+        super.getContentPane().add(pnCanvas, BorderLayout.CENTER);
+		
 		GLCapabilities c = new GLCapabilities();
 		c.setRedBits(8);
 		c.setBlueBits(8);
@@ -240,7 +249,8 @@ public class EditorFrame extends JFrame {
 		
 		jogl = new Canvas();
 		this.canvas = new GLCanvas(c);
-		this.getContentPane().add(canvas,BorderLayout.CENTER);
+		pnCanvas.add(this.canvas, BorderLayout.CENTER);
+		//this.getContentPane().add(canvas,BorderLayout.CENTER);
 		canvas.addGLEventListener(jogl);        
 		canvas.addKeyListener(jogl);
 		canvas.addMouseListener(jogl);
