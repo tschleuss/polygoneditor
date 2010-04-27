@@ -206,17 +206,19 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 							gl.glBegin(GL.GL_LINE_STRIP);
 							break;
 					}
-					
+					System.out.println("\n");
 					for( float[] pontos : poligon.getPontos() )
 					{
 						final float pontoX = pontos[0];
 						final float pontoY = pontos[1];
 						
 						gl.glVertex2f(pontoX, pontoY);
-
 					}
-
+					
 					gl.glEnd();
+
+					
+					gl.glPopMatrix(); 
 					
 					/*
 					if(isRotating)
