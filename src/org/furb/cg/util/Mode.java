@@ -15,9 +15,8 @@ public enum Mode {
 	SELECTION		(5),
 	ROTATE			(6),
 	SCALE			(7),
-	PAN_HORIZONTAL	(8),
-	PAN_VERTICAL	(9),
-	DO_NOTHING		(10);
+	PAN				(8),
+	DO_NOTHING		(9);
 	
 	private int mode;
 	

@@ -26,6 +26,7 @@ import org.furb.cg.render.PreviewLine;
 import org.furb.cg.render.Spline;
 import org.furb.cg.util.Base;
 import org.furb.cg.util.Mode;
+import org.furb.cg.util.MouseCursor;
 import org.furb.cg.util.Rotation;
 import org.furb.cg.util.ScanLine;
 
@@ -46,7 +47,6 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	private GLU				glu				= null;
 	private GLUT			glut 			= null;
 	private GLAutoDrawable	glDrawable		= null;
-	private EditorFrame		window			= null;
 	private Mode			mode			= null;
 	private Color			color			= Color.BLACK;
 	private boolean			showBoundBox	= false;
@@ -418,6 +418,12 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	 */
 	public void mousePressed(MouseEvent e)
 	{
+		if(this.mode == Mode.PAN){
+			MouseCursor.getInstace().setCloseHandCursor();
+		}else{
+			MouseCursor.getInstace().setNormalCursor();
+		}
+		
 		//Verificar selecao ou adicionar ponto
 		final float pointX = Base.getInstace().normalizarX( Float.valueOf( e.getX() ) );
 		final float pointY = Base.getInstace().normalizarY( Float.valueOf( e.getY() ) );
@@ -429,6 +435,10 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		{
 			switch(this.getMode())
 			{
+				case PAN: 
+					xValue = pointX;
+					yValue = pointY;
+					break;
 				case ROTATE:
 				case SELECTION:
 					selecionados = ScanLine.getInstace().intersectionCheck(poligonos, pointX, pointY);
@@ -458,12 +468,12 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	 */
 	public void mouseMoved(MouseEvent e) 
 	{
-
+		
 		final float pointX = Base.getInstace().normalizarX( Float.valueOf( e.getX() ) );
 		final float pointY = Base.getInstace().normalizarY( Float.valueOf( e.getY() ) );
 		
 		final MessageFormat mf = new MessageFormat("({0},{1})");
-		this.getWindow().setStatus( mf.format( new Object[]{ pointX , pointY } ) );
+		Base.getInstace().getWindow().setStatus( mf.format( new Object[]{ pointX , pointY } ) );
 
 		if( atual != null && !atual.getPontos().isEmpty() )
 		{
@@ -540,7 +550,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		final float pointY = Base.getInstace().normalizarY( Float.valueOf( e.getY() ) );
 		
 		final MessageFormat mf = new MessageFormat("({0},{1})");
-		this.getWindow().setStatus( mf.format( new Object[]{ pointX , pointY } ) );
+		Base.getInstace().getWindow().setStatus( mf.format( new Object[]{ pointX , pointY } ) );
 		
 		switch(this.getMode())
 		{
@@ -573,6 +583,14 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 					}
 				}
 				break;
+			
+			case PAN:
+				
+				panX +=  (xValue - pointX);
+				panY += (yValue - pointY) ;
+				
+				Base.getInstace().setPanX(panX);
+				Base.getInstace().setPanY(panY);
 				
 			case CIRCLE:
 				if( atual != null && atual.getPontos().size() == 1 )
@@ -618,7 +636,13 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	}
 	
 	public void mouseReleased(MouseEvent e) {
-		return;
+
+		if(this.mode == Mode.PAN){
+			MouseCursor.getInstace().setOpenHandCursor();
+		}else{
+			MouseCursor.getInstace().setNormalCursor();
+		}
+		
 	}
 	
 	public void keyReleased(KeyEvent e) {
@@ -649,14 +673,6 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		this.updateDimensions(maxX, maxY);
 	}
 
-	public EditorFrame getWindow() {
-		return window;
-	}
-
-	public void setWindow(EditorFrame window) {
-		this.window = window;
-	}
-
 	public Mode getMode() {
 		return mode;
 	}
@@ -664,6 +680,12 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	public void setMode(Mode mode)
 	{
 		this.mode = mode;
+		
+		if(this.mode  == Mode.PAN){
+			MouseCursor.getInstace().setOpenHandCursor();
+		}else{
+			MouseCursor.getInstace().setNormalCursor();
+		}
 		
 		this.cancelSelection();
 	}
@@ -694,23 +716,6 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		        Rotation.getInstace().setAngle(move);
 
 		        isRotating = true;
-				refresh = true;
-				break;
-				
-			case PAN_HORIZONTAL:
-				
-				panX += (move * 5);
-				
-				Base.getInstace().setPanX(panX);
-				
-				refresh = true;
-				break;
-			case PAN_VERTICAL:
-				
-				panY += (move * 5);
-				
-				Base.getInstace().setPanY(panY);
-				
 				refresh = true;
 				break;
 		

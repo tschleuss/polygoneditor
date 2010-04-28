@@ -3,6 +3,8 @@ package org.furb.cg.util;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
+import org.furb.cg.EditorFrame;
+
 /**
  * Classe base responsavel por guardar
  * funcoes de uso constante, guardar
@@ -27,6 +29,8 @@ public class Base {
 	
 	private float 			panX;
 	private float 			panY;
+	
+	private EditorFrame		window;
 	
 	private Base() {
 		super();
@@ -185,5 +189,13 @@ public class Base {
 
 	public float getScale() {
 		return scale;
+	}
+
+	public void setWindow(EditorFrame window) {
+		this.window = window;
+	}
+
+	public EditorFrame getWindow() {
+		return window;
 	}
 }

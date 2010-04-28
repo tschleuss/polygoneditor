@@ -62,8 +62,7 @@ public class EditorFrame extends JFrame {
     private JPanel 		pnStatus		= null;
     private JButton		zoomIn			= null;
     private JButton		zoomOut			= null;
-    private JButton		panVertical		= null;
-    private JButton		panHorizontal	= null;    
+    private JButton		pan				= null;    
     private JButton		btBoundBox		= null;
 
     /**
@@ -110,11 +109,10 @@ public class EditorFrame extends JFrame {
         rotatePolygon	= new JButton();
         zoomIn			= new JButton();
         zoomOut			= new JButton();
-        panVertical		= new JButton();
-        panHorizontal	= new JButton();
+        pan				= new JButton();
         btBoundBox		= new JButton();
         
-        jogl.setWindow(this);
+        Base.getInstace().setWindow(this);
         jogl.setMode(Mode.SELECTION);
         
         pnBotoes.setFloatable(false);
@@ -133,8 +131,7 @@ public class EditorFrame extends JFrame {
         this.initButton("Escalonar poligono", 		"",																		scalePolygon, 	Mode.DO_NOTHING,		"scale.png" 		, true,		true	);
         this.initButton("Incrementar Zoom", 		"",																		zoomIn, 		Mode.DO_NOTHING,		"zoomIn.png"		, false,	false	);
         this.initButton("Decrementar Zoom", 		"",																		zoomOut, 		Mode.DO_NOTHING,		"zoomOut.png"		, false,	false	);
-        this.initButton("Pan Vertical", 			"Utilize o scroll do mouse para deslocar verticalmente a câmera",		panVertical, 	Mode.PAN_VERTICAL,		"panVertical.png"	, false,	true	);
-        this.initButton("Pan Horizontal", 			"Utilize o scroll do mouse para deslocar horizontalmente a câmera",		panHorizontal, 	Mode.PAN_HORIZONTAL,	"panHorizontal.png"	, false,	true	);
+        this.initButton("Pan Vertical e Horizontal","",																		pan, 			Mode.PAN,				"pan.png"			, false,	true	);
         this.initButton("Selecionar uma cor",		"",																		btCorPadrao,	Mode.DO_NOTHING, 		"paint.png"			, false, 	false	);
         this.initButton("Exibir boundbox",			"",																		btBoundBox,		Mode.DO_NOTHING, 		"boundbox.png"		, false, 	false	);
         this.initButton("Finalizar o programa",		"",																		btSair, 	  	Mode.DO_NOTHING, 		"exit.png"			, true, 	true	);
@@ -155,11 +152,11 @@ public class EditorFrame extends JFrame {
         btCorPadrao.addMouseListener( new MouseListener() 
         {
     		public void mouseEntered(MouseEvent e) {
-    			jogl.getWindow().setStatus("Selecione a cor de desenho");
+    			Base.getInstace().getWindow().setStatus("Selecione a cor de desenho");
 			}
 
 			public void mouseExited(MouseEvent e) {
-				jogl.getWindow().setStatus("");
+				Base.getInstace().getWindow().setStatus("");
 			}
 
 			public void mouseClicked(MouseEvent e) {}
@@ -174,7 +171,7 @@ public class EditorFrame extends JFrame {
     	    {
     	    	JColorChooser pane = new JColorChooser(jogl.getColor());
     	    	ColorSelectionModel csm = new ColorSelectionModel(pane);
-				JDialog dialog = JColorChooser.createDialog( jogl.getWindow() , "Escolha a cor do pincel", true, pane, csm, null);
+				JDialog dialog = JColorChooser.createDialog( Base.getInstace().getWindow() , "Escolha a cor do pincel", true, pane, csm, null);
 				dialog.setVisible(true);
     	    	Color cor = csm.getColor();
     	    	btCorPadrao.setBackground(cor);
@@ -296,12 +293,12 @@ public class EditorFrame extends JFrame {
     	button.addMouseListener(new MouseListener() 
     	{
     		public void mouseEntered(MouseEvent e) {
-				jogl.getWindow().setStatus(hint);
+    			Base.getInstace().getWindow().setStatus(hint);
 				button.setBorderPainted(true);
 			}
 
 			public void mouseExited(MouseEvent e) {
-				jogl.getWindow().setStatus("");
+				Base.getInstace().getWindow().setStatus("");
 				button.setBorderPainted(false);
 			}
 
@@ -344,11 +341,8 @@ public class EditorFrame extends JFrame {
     	        zoomOut.setBackground(def);
     	        zoomOut.setEnabled(true);
     	        
-    	        panVertical.setBackground(def);
-    	        panVertical.setEnabled(true);
-    	        
-    	        panHorizontal.setBackground(def);
-    	        panHorizontal.setEnabled(true);
+    	        pan.setBackground(def);
+    	        pan.setEnabled(true);
     	        
     	        if( changeColor ) {
     	        	((JButton)e.getSource()).setBackground(Color.DARK_GRAY);
