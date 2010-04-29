@@ -4,6 +4,7 @@ import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
 import org.furb.cg.EditorFrame;
+import org.furb.cg.model.Ponto;
 
 /**
  * Classe base responsavel por guardar
@@ -18,18 +19,15 @@ import org.furb.cg.EditorFrame;
 public class Base {
 
 	private static Base		base = new Base();
-	private float			screenWidth;
-	private float			screenHeight;
-	private float			left;
-	private float			right;
-	private float			bottom;
-	private float			top;
-	
-	private float 			scale = 1.0f;
-	
-	private float 			panX;
-	private float 			panY;
-	
+	private double			screenWidth;
+	private double			screenHeight;
+	private double			left;
+	private double			right;
+	private double			bottom;
+	private double			top;
+	private double 			scale = 1.0f;
+	private double 			panX;
+	private double 			panY;
 	private EditorFrame		window;
 	
 	private Base() {
@@ -54,14 +52,12 @@ public class Base {
 	 * @param posX
 	 * @return
 	 */
-	public float normalizarX(float x)
+	public double normalizarX(double x)
 	{
+		final double xOrigem = screenWidth;		
+		final double xDestino = right - left;
 		
-		final float xOrigem = screenWidth;		
-		float xDestino = right - left;
-		
-		float newX = ( x * ( xDestino / xOrigem ) ) + left;
-		
+		double newX = ( x * ( xDestino / xOrigem ) ) + left;
 		newX = (newX * scale) + panX;
 		
 		return newX;
@@ -72,34 +68,31 @@ public class Base {
 	 * @param posY
 	 * @return
 	 */
-	public float normalizarY(float y)
+	public double normalizarY(double y)
 	{
 		//tamanho da toolbar
-		final float toolbarFix = 90.0f;
+		final double toolbarFix = 90.0f;
+		final double yOrigem = screenHeight;		
+		final double yDestino = bottom - (top + toolbarFix);
 		
-		final float yOrigem = screenHeight;		
-		float yDestino = bottom - (top + toolbarFix);
-		
-		float newY = ( y * ( yDestino / yOrigem ) ) + top;
-		
+		double newY = ( y * ( yDestino / yOrigem ) ) + top;
 		newY = (newY * scale) + panY;
 		
 		return newY;
 	}
 	
-	public float[] rotacionarXY (float x, float y, float angulo)
+	public double[] rotacionarXY (double x, double y, double angulo)
 	{
-		double radianos = (angulo * Math.PI) / 180;
+		final double radianos = (angulo * Math.PI) / 180;
+		final double cosAngulo = Math.cos(radianos);
+		final double sinAngulo = Math.sin(radianos);
 		
-		double cosAngulo = Math.cos(radianos);
-		double sinAngulo = Math.sin(radianos);
+		double newX = (x * cosAngulo) - (y * sinAngulo);
+		double newY = (y * cosAngulo) + (x * sinAngulo);
 		
-		float _x = (float) ((x * cosAngulo) - (y * sinAngulo));
-		float _y = (float) ((y * cosAngulo) + (x * sinAngulo));
-		
-		float [] valores = new float[2];
-		valores [0] = _x; 
-		valores [1] = _y; 
+		double[] valores = new double[2];
+		valores [0] = newX; 
+		valores [1] = newY; 
 		
 		return valores;
 	}
@@ -112,82 +105,82 @@ public class Base {
 	 * @param p2
 	 * @return
 	 */
-	public float distancia(float[] p1, float[] p2) 
+	public double distancia(Ponto p1, Ponto p2) 
 	{
-		final float xCalc = Float.valueOf( String.valueOf( pow((p2[0] - p1[0]),2) ) );
-		final float yCalc = Float.valueOf( String.valueOf( pow((p2[1] - p1[1]),2) ) );
-		return Float.valueOf( String.valueOf( sqrt( xCalc + yCalc ) ) );
+		final double xCalc = pow((p2.getX() - p1.getX()),2);
+		final double yCalc = pow((p2.getY() - p1.getY()),2);
+		return sqrt( xCalc + yCalc );
 	}
 	
-	public float getScreenWidth() {
+	public double getScreenWidth() {
 		return screenWidth;
 	}
 
-	public void setScreenWidth(float screenWidth) {
+	public void setScreenWidth(double screenWidth) {
 		this.screenWidth = screenWidth;
 	}
 
-	public float getScreenHeight() {
+	public double getScreenHeight() {
 		return screenHeight;
 	}
 
-	public void setScreenHeight(float screenHeight) {
+	public void setScreenHeight(double screenHeight) {
 		this.screenHeight = screenHeight;
 	}
 
-	public float getLeft() {
+	public double getLeft() {
 		return left;
 	}
 
-	public void setLeft(float left) {
+	public void setLeft(double left) {
 		this.left = left;
 	}
 
-	public float getRight() {
+	public double getRight() {
 		return right;
 	}
 
-	public void setRight(float right) {
+	public void setRight(double right) {
 		this.right = right;
 	}
 
-	public float getBottom() {
+	public double getBottom() {
 		return bottom;
 	}
 
-	public void setBottom(float bottom) {
+	public void setBottom(double bottom) {
 		this.bottom = bottom;
 	}
 
-	public float getTop() {
+	public double getTop() {
 		return top;
 	}
 
-	public void setTop(float top) {
+	public void setTop(double top) {
 		this.top = top;
 	}
 
-	public void setPanX(float panX) {
+	public void setPanX(double panX) {
 		this.panX = panX;
 	}
 
-	public float getPanX() {
+	public double getPanX() {
 		return panX;
 	}
 
-	public void setPanY(float panY) {
+	public void setPanY(double panY) {
 		this.panY = panY;
 	}
 
-	public float getPanY() {
+	public double getPanY() {
 		return panY;
 	}
 
-	public void setScale(float scale) {
+	public void setScale(double scale) {
 		this.scale = scale;
 	}
 
-	public float getScale() {
+	public double getScale() {
 		return scale;
 	}
 

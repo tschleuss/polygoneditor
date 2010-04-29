@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.furb.cg.model.Poligono;
+import org.furb.cg.model.Ponto;
 
 /**
  * Classe responsavel por realizar
@@ -37,7 +38,7 @@ public class ScanLine {
 	}
 	
 	
-	public List<Poligono> intersectionCheck(List<Poligono> poligonos, float x, float y)
+	public List<Poligono> intersectionCheck(List<Poligono> poligonos, double x, double y)
 	{
 		//Cria um array para armazenar o poligonos pre-selcionados
 		List<Poligono> preSelecteds = new ArrayList<Poligono>();
@@ -61,9 +62,9 @@ public class ScanLine {
 		for( Poligono poligon : preSelecteds )
 		{
 			//Recupera todos os pares de pontos x,y do poligono pre-selecionado
-			Iterator<float[]> iterator = poligon.getPontos().iterator();
-			float[] ini = null;
-			float[] end = null;
+			Iterator<Ponto> iterator = poligon.getPontos().iterator();
+			Ponto ini = null;
+			Ponto end = null;
 			boolean last = false;
 			int count = 0;
 			
@@ -90,7 +91,7 @@ public class ScanLine {
 				}
 				
 				//Se o ponto inicial x1,y1 for diferente do ponto final x2,y2
-				if( ini[1] != end[1] )
+				if( ini.getY() != end.getY() )
 				{
 					//Utiliza scan line para verifica se o ponto intersecta
 					if( this.scanLine(ini, end, x, y) )
@@ -130,16 +131,16 @@ public class ScanLine {
 	 * @param y
 	 * @return
 	 */
-	private boolean scanLine(float[] ini, float[] end, float x, float y)
+	private boolean scanLine(Ponto ini, Ponto end, double x, double y)
 	{
-		float det = ini[0] + (end[0] - ini[0]) * ( (y - ini[1]) / (end[1] - ini[1]) ); 
+		double det = ini.getX() + (end.getX() - ini.getX()) * ( (y - ini.getY()) / (end.getY() - ini.getY()) ); 
 
-		if ( Float.isInfinite(det) ) 
+		if ( Double.isInfinite(det) ) 
 		{
 			return false; // nao ha interseccao
 		}
 
-		if( det > x && y > Math.min(ini[1], end[1]) && y <= Math.max(ini[1], end[1]) )
+		if( det > x && y > Math.min(ini.getY(), end.getY()) && y <= Math.max(ini.getY(), end.getY()) )
 		{
 			return true; // ha interseccao
 		}

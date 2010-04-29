@@ -3,8 +3,8 @@ package org.furb.cg.render;
 import javax.media.opengl.GL;
 
 import org.furb.cg.model.Poligono;
+import org.furb.cg.model.Ponto;
 import org.furb.cg.util.Bezier;
-import org.furb.cg.util.Rotation;
 
 /**
  * Classe responsavel pelo desenho de uma spline
@@ -30,9 +30,9 @@ public class Spline extends Base{
 		gl.glPointSize(3.0f);
 		gl.glBegin(GL.GL_POINTS);
 		
-		for( float[] point : poligon.getPontos() )
+		for( Ponto point : poligon.getPontos() )
 		{
-			gl.glVertex2f(point[0], point[1]);
+			gl.glVertex2d(point.getX(), point.getY());
 		}
 		
 		gl.glEnd();
@@ -58,5 +58,4 @@ public class Spline extends Base{
 			
 		}
 	}
-	
 }

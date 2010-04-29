@@ -17,18 +17,18 @@ import org.furb.cg.util.Rotation;
 public class Poligono {
 
 	//Atributos do Poligono
-	private List<float[]>	pontos		= new ArrayList<float[]>();
+	private List<Ponto>		pontos		= new ArrayList<Ponto>();
 	private boolean			selected	= false;
 	private Mode			mode		= null;
 	private Color			color		= Color.BLACK;
 	
 	//Valores da bound box
-	private float			maxX		= Float.MIN_VALUE;
-	private float			minX		= Float.MAX_VALUE;
-	private float			maxY		= Float.MIN_VALUE;
-	private float			minY		= Float.MAX_VALUE;
-	private float			centerX  	= Float.MAX_VALUE;;
-	private float			centerY		= Float.MAX_VALUE;;
+	private double			maxX		= Double.NEGATIVE_INFINITY;
+	private double			minX		= Double.POSITIVE_INFINITY;
+	private double			maxY		= Double.NEGATIVE_INFINITY;
+	private double			minY		= Double.POSITIVE_INFINITY;
+	private double			centerX  	= Double.POSITIVE_INFINITY;;
+	private double			centerY		= Double.POSITIVE_INFINITY;;
 	
 	public Poligono() {
 		super();
@@ -41,13 +41,13 @@ public class Poligono {
 	 */
 	public void updateBoundBox() 
 	{ 
-		float vX = 0.0f;
-		float vY = 0.0f;
+		double vX = 0.0;
+		double vY = 0.0;
 		
-		for( float points[] : pontos )
+		for( Ponto points : pontos )
 		{
-			vX = points[0];
-			vY = points[1];
+			vX = points.getX();
+			vY = points.getY();
 			
 			if ( vX > maxX ) { maxX = vX; }
 			if ( vX < minX ) { minX = vX; }
@@ -74,7 +74,7 @@ public class Poligono {
 	 * @param y
 	 * @return
 	 */
-	public boolean isOverBoundBox(float x, float y)
+	public boolean isOverBoundBox(double x, double y)
 	{
 		if( (x >= minX) && (x <= maxX ) ) 
 		{
@@ -93,60 +93,49 @@ public class Poligono {
 	 */
 	public void resetBoundBox()
 	{
-		maxX = -Float.MAX_VALUE;
-		minX = Float.MAX_VALUE;
-		maxY = -Float.MAX_VALUE;
-		minY = Float.MAX_VALUE;
-	}
-
-	public List<float[]> getPontos() {
-		return pontos;
-	}
-
-	public void setPontos(List<float[]> pontos) {
-		this.pontos = pontos;
-	}
-
-	public float getMaxX() {
-		return maxX;
-	}
-
-	public void setMaxX(float maxX) {
-		this.maxX = maxX;
-	}
-
-	public float getMinX() {
-		return minX;
-	}
-
-	public void setMinX(float minX) {
-		this.minX = minX;
-	}
-
-	public float getMaxY() {
-		return maxY;
-	}
-
-	public void setMaxY(float maxY) {
-		this.maxY = maxY;
-	}
-
-	public float getMinY() {
-		return minY;
-	}
-
-	public void setMinY(float minY) {
-		this.minY = minY;
-	}
-
-	public boolean isSelected() {
-		return selected;
+		maxX = Double.NEGATIVE_INFINITY;
+		minX = Double.POSITIVE_INFINITY;
+		maxY = Double.NEGATIVE_INFINITY;
+		minY = Double.POSITIVE_INFINITY;
 	}
 
 	public void setSelected(boolean selected) {
 		this.resetBoundBox();
 		this.updateBoundBox();
 		this.selected = selected;
+	}
+	
+	private void rotatePoints(){
+		
+		for( Ponto points : pontos )
+		{
+			final double pontoX = points.getX();
+			final double pontoY = points.getY();
+			
+			if(this.isSelected())
+			{
+				final double newXY[] = Rotation.getInstace().rotate(centerX, centerY, pontoX, pontoY);	
+				points.setX( points.getX() + newXY[0] );
+				points.setY( points.getY() + newXY[1] );
+			}
+		}
+		
+		this.resetBoundBox();
+		this.updateBoundBox();
+	}
+	
+	public void setRotate(boolean rotate) {
+		if(rotate){
+			rotatePoints();
+		}
+	}
+
+	public List<Ponto> getPontos() {
+		return pontos;
+	}
+
+	public void setPontos(List<Ponto> pontos) {
+		this.pontos = pontos;
 	}
 
 	public Mode getMode() {
@@ -165,45 +154,55 @@ public class Poligono {
 		this.color = color;
 	}
 
-	public void setCenterX(float centerX) {
-		this.centerX = centerX;
+	public double getMaxX() {
+		return maxX;
 	}
 
-	public float getCenterX() {
+	public void setMaxX(double maxX) {
+		this.maxX = maxX;
+	}
+
+	public double getMinX() {
+		return minX;
+	}
+
+	public void setMinX(double minX) {
+		this.minX = minX;
+	}
+
+	public double getMaxY() {
+		return maxY;
+	}
+
+	public void setMaxY(double maxY) {
+		this.maxY = maxY;
+	}
+
+	public double getMinY() {
+		return minY;
+	}
+
+	public void setMinY(double minY) {
+		this.minY = minY;
+	}
+
+	public double getCenterX() {
 		return centerX;
 	}
 
-	public void setCenterY(float centerY) {
+	public void setCenterX(double centerX) {
+		this.centerX = centerX;
+	}
+
+	public double getCenterY() {
+		return centerY;
+	}
+
+	public void setCenterY(double centerY) {
 		this.centerY = centerY;
 	}
 
-	public float getCenterY() {
-		return centerY;
+	public boolean isSelected() {
+		return selected;
 	}
-	
-	public void setRotate(boolean rotate) {
-		if(rotate){
-			rotatePoints();
-		}
-	}
-	
-	private void rotatePoints(){
-		
-		for( float[] pontos : this.getPontos() )
-		{
-			final float pontoX = pontos[0];
-			final float pontoY = pontos[1];
-			
-			if(this.isSelected()){
-				float newXY[] = Rotation.getInstace().rotate(centerX, centerY, pontoX, pontoY);
-				
-				pontos[0]+= newXY[0];
-				pontos[1]+= newXY[1];
-			}
-		}
-		
-		this.resetBoundBox();
-		this.updateBoundBox();
-	}
-	
 }

@@ -3,6 +3,7 @@ package org.furb.cg.render;
 import javax.media.opengl.GL;
 
 import org.furb.cg.model.Poligono;
+import org.furb.cg.model.Ponto;
 /**
  * Classe responsavel pelo desenho de um
  * preview da linha que será adicionada ao polígono
@@ -26,9 +27,9 @@ public class PreviewLine extends Base {
 		gl.glColor3f(0.0f, 0.0f, 1.0f);
 		gl.glBegin(GL.GL_LINE_LOOP);
 		
-		for( float[] point : line.getPontos() )
+		for( Ponto point : line.getPontos() )
 		{
-			gl.glVertex2f(point[0], point[1]);
+			gl.glVertex2d(point.getX(), point.getY());
 		}
 		
 		gl.glEnd();

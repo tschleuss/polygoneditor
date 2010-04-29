@@ -11,8 +11,9 @@ public class Rotation {
 
 	private static Rotation rotation = new Rotation();
 	
-	private float angle;
-	private float rotatedX, rotatedY;
+	private double angle;
+	private double rotatedX;
+	private double rotatedY;
 	
 	private Rotation() {
 		super();
@@ -39,21 +40,20 @@ public class Rotation {
 	 * @param currentY
 	 * @return
 	 */
-	public float[] rotate(float orignX, float orignY, float currentX, float currentY){
-		
+	public double[] rotate(double orignX, double orignY, double currentX, double currentY)
+	{
 		//normaliza os pontos utilizando a cordenada da origem
-		float normalizedX = currentX - orignX;
-		float normalizedY = currentY - orignY;
+		final double normalizedX = currentX - orignX;
+		final double normalizedY = currentY - orignY;
 		
 		//rotaciona, a partir do ponto de origem
 		this.rotateXY(normalizedX, normalizedY);
 
 		//converte a cordenada recebida para um ponto no espaço não normalizado
-		float newX = rotatedX - normalizedX;
-		float newY = rotatedY - normalizedY;
+		final double newX = rotatedX - normalizedX;
+		final double newY = rotatedY - normalizedY;
 		
-		return new float []{newX, newY};
-		
+		return new double []{ newX, newY };
 	}
 	
 	/**
@@ -62,23 +62,21 @@ public class Rotation {
 	 * @param y
 	 * @return
 	 */
-	private void rotateXY (float x, float y)
+	private void rotateXY (double x, double y)
 	{
-		double radian = (this.angle * Math.PI) / 180;
+		final double radian = (this.angle * Math.PI) / 180;
+		final double cosAngle = Math.cos(radian);
+		final double sinAngle = Math.sin(radian);
 		
-		double cosAngle = Math.cos(radian);
-		double sinAngle = Math.sin(radian);
-		
-		rotatedX = (float) ((x * cosAngle) - (y * sinAngle));
-		rotatedY = (float) ((y * cosAngle) + (x * sinAngle));
+		rotatedX = ((x * cosAngle) - (y * sinAngle));
+		rotatedY = ((y * cosAngle) + (x * sinAngle));
 	}
 
-	public void setAngle(float angle) {
+	public void setAngle(double angle) {
 		this.angle = angle;
 	}
 
-	public float getAngle() {
+	public double getAngle() {
 		return angle;
 	}
-	
 }

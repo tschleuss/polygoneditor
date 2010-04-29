@@ -48,21 +48,21 @@ public class BoundBox extends Base{
 		gl.glLineStipple(1, (short) 0x00FF); 
 		gl.glColor3f(0.0f, 1.0f, 0.0f);
 		gl.glBegin(GL.GL_LINE_LOOP);
-			gl.glVertex2d(poligon.getMinX(),  poligon.getMinY());	
-			gl.glVertex2d(poligon.getMaxX(),  poligon.getMinY());	
-			gl.glVertex2d(poligon.getMaxX(),  poligon.getMaxY());	
-			gl.glVertex2d(poligon.getMinX(),  poligon.getMaxY());	
+			gl.glVertex2d(poligon.getMinX(),  poligon.getMinY());
+			gl.glVertex2d(poligon.getMaxX(),  poligon.getMinY());
+			gl.glVertex2d(poligon.getMaxX(),  poligon.getMaxY());
+			gl.glVertex2d(poligon.getMinX(),  poligon.getMaxY());
 		gl.glEnd();
 		gl.glDisable(GL.GL_LINE_STIPPLE);
 		
 		drawCenterPoint(poligon);
 	}
 	
-	private void drawCenterPoint(Poligono poligon){
+	private void drawCenterPoint(Poligono poligon)
+	{
 		 gl.glPointSize(3.0f);
 		 gl.glBegin(GL.GL_POINTS);
-			gl.glVertex2f(poligon.getCenterX() ,poligon.getCenterY());
+			gl.glVertex2d(poligon.getCenterX() ,poligon.getCenterY());
 		 gl.glEnd();
 	}
-	
 }

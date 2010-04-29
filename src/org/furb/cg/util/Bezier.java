@@ -1,6 +1,7 @@
 package org.furb.cg.util;
 
 import org.furb.cg.model.Poligono;
+import org.furb.cg.model.Ponto;
 
 /**
  * Classe responsavel por realizar
@@ -46,15 +47,15 @@ public class Bezier {
 	    float x = 0;
 	    float y = 0;
 	    float result;
-	    float[] points = new float[2];
+	    Ponto points;
 	    
 	    for (int pontoArco = 0; pontoArco <= 3; pontoArco++ )
 	    {
 	    	result = calculeBezier(pontoArco,t);
 	    	points = poligon.getPontos().get(numArco+pontoArco);
 	    	
-	    	x += result * points[0];
-	      	y += result * points[1];
+	    	x += result * points.getX();
+	      	y += result * points.getY();
 	    }
 	    
 	    return new float[]{ x , y };
@@ -92,5 +93,4 @@ public class Bezier {
 		
 		return 0;
 	}
-	
 }

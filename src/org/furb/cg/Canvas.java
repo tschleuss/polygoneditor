@@ -20,6 +20,7 @@ import javax.media.opengl.GLEventListener;
 import javax.media.opengl.glu.GLU;
 
 import org.furb.cg.model.Poligono;
+import org.furb.cg.model.Ponto;
 import org.furb.cg.render.BoundBox;
 import org.furb.cg.render.Circle;
 import org.furb.cg.render.PreviewLine;
@@ -50,16 +51,13 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	private Mode			mode			= null;
 	private Color			color			= Color.BLACK;
 	private boolean			showBoundBox	= false;
-	
 	private boolean 		isRotating 		= false;
 
-	private float			left;
-	private float			right;
-	private float			bottom;
-	private float			top;
-	
+	private double			left;
+	private double			right;
+	private double			bottom;
+	private double			top;
 
-	
 	private List<Poligono>	poligonos			= new ArrayList<Poligono>();
 	private List<Poligono>	selecionados		= new ArrayList<Poligono>();
 	private int				selectedPointIdx	= 0;
@@ -67,11 +65,11 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	private Poligono		atual				= null;
 	private Poligono		linha				= null;
 	
-	private float 			scale				= 1.0f;
-	private float 			panX				= 0.0f;
-	private float 			panY				= 0.0f;
-	private float			xValue				= 0.0f;
-	private float			yValue				= 0.0f;
+	private double 			scale				= 1.0f;
+	private double 			panX				= 0.0f;
+	private double 			panY				= 0.0f;
+	private double			xValue				= 0.0f;
+	private double			yValue				= 0.0f;
 	
 	//Tipos de polígonos
 	private Spline spline = null;
@@ -98,8 +96,8 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	 * JOGL para poder desenha os elementos
 	 * na tela.
 	 */
-	public void init(GLAutoDrawable drawable) {
-		
+	public void init(GLAutoDrawable drawable)
+	{
 		glDrawable = drawable;
 		gl = drawable.getGL();
 		glu = new GLU();
@@ -115,7 +113,8 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		line = new PreviewLine(gl);
 	}
 
-	public void updateDimensions(float height, float width){
+	public void updateDimensions(double height, double width)
+	{
 		right = height + 20;
 		top = width + 100;
 
@@ -165,10 +164,10 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 			//verifica se foi selecionada alguma cor previamente
 			if(color != null)
 			{
-				final float red	= color.getRed()   / 255.0f;
-				final float green	= color.getGreen() / 255.0f;
-				final float blue = color.getBlue()  / 255.0f;
-				gl.glColor3f(red,green ,blue);
+				final double red	= color.getRed()   / 255.0;
+				final double green	= color.getGreen() / 255.0;
+				final double blue 	= color.getBlue()  / 255.0;
+				gl.glColor3d(red,green ,blue);
 				
 			}
 			poligonMode = poligon.getMode();
@@ -185,17 +184,6 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 					break;
 					
 				default:
-					/*
-					 * Esse método realiza a rotação, porém
-					 * não salva as novas coordenadas após a transformação
-					if(isRotating)
-					{
-						gl.glPushMatrix();
-						gl.glTranslatef(centerX, centerY, 0.0f );
-						gl.glRotatef(rotateAngule, 0, 0, 1);
-						gl.glTranslatef(-centerX, -centerY, 0.0f );
-					}
-					*/
 					
 					switch(poligonMode)
 					{
@@ -208,23 +196,15 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 							break;
 					}
 
-					for( float[] pontos : poligon.getPontos() )
+					for( Ponto pontos : poligon.getPontos() )
 					{
-						final float pontoX = pontos[0];
-						final float pontoY = pontos[1];
-						
-						gl.glVertex2f(pontoX, pontoY);
+						final double pontoX = pontos.getX();
+						final double pontoY = pontos.getY();
+						gl.glVertex2d(pontoX, pontoY);
 					}
 					
 					gl.glEnd();
 					
-					/*
-					if(isRotating)
-					{
-						gl.glPopMatrix(); 
-					}
-					*/
-				
 					break;
 			}
 			
@@ -258,14 +238,14 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	 * @param x
 	 * @param y
 	 */
-	private void addPoint(float x, float y)
+	private void addPoint(double x, double y)
 	{
 		if( atual == null ) {
 			this.addPoligon();
 		}
 		
 		atual.setColor( this.getColor() );
-		atual.getPontos().add( new float[]{ x, y } );
+		atual.getPontos().add( new Ponto( x, y ) );
 		atual.updateBoundBox();
 		
 		//Se clicou novamente e for o modo circulo
@@ -379,8 +359,8 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	{
 		if( atual != null )
 		{
-			float[] pointA = atual.getPontos().get(0);
-			this.addPoint(pointA[0], pointA[1]);
+			Ponto pointA = atual.getPontos().get(0);
+			this.addPoint(pointA.getX(), pointA.getY());
 			cancelSelection();
 		}
 	}
@@ -425,8 +405,8 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		}
 		
 		//Verificar selecao ou adicionar ponto
-		final float pointX = Base.getInstace().normalizarX( Float.valueOf( e.getX() ) );
-		final float pointY = Base.getInstace().normalizarY( Float.valueOf( e.getY() ) );
+		final double pointX = Base.getInstace().normalizarX( Double.valueOf( e.getX() ) );
+		final double pointY = Base.getInstace().normalizarY( Double.valueOf( e.getY() ) );
 		
 		selectedPoint = null;
 		selectedPointIdx = -1;
@@ -469,8 +449,8 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	public void mouseMoved(MouseEvent e) 
 	{
 		
-		final float pointX = Base.getInstace().normalizarX( Float.valueOf( e.getX() ) );
-		final float pointY = Base.getInstace().normalizarY( Float.valueOf( e.getY() ) );
+		final double pointX = Base.getInstace().normalizarX( Double.valueOf( e.getX() ) );
+		final double pointY = Base.getInstace().normalizarY( Double.valueOf( e.getY() ) );
 		
 		final MessageFormat mf = new MessageFormat("({0},{1})");
 		Base.getInstace().getWindow().setStatus( mf.format( new Object[]{ pointX , pointY } ) );
@@ -478,14 +458,14 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		if( atual != null && !atual.getPontos().isEmpty() )
 		{
 
-			float[] pointA = null;
-			float[] pointB = null;
+			Ponto pointA = null;
+			Ponto pointB = null;
 			
 			switch(this.getMode())
 			{
 				case OPEN_POLYGON:
 					pointA = atual.getPontos().get( atual.getPontos().size() -1 );
-					pointB = new float[]{ pointX , pointY };
+					pointB = new Ponto( pointX , pointY );
 					linha = new Poligono();
 					linha.getPontos().add(pointA);
 					linha.getPontos().add(pointB);
@@ -495,7 +475,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 					if( atual.getPontos().size() == 1 ) 
 					{
 						pointA = atual.getPontos().get( atual.getPontos().size() -1 );
-						pointB = new float[]{ pointX , pointY };
+						pointB = new Ponto( pointX , pointY );
 						linha = new Poligono();
 						linha.getPontos().add(pointA);
 						linha.getPontos().add(pointB);
@@ -504,7 +484,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 					{
 						pointA = atual.getPontos().get(0);
 						pointB = atual.getPontos().get(1);
-						float[] pointC = new float[]{ pointX , pointY };
+						Ponto pointC = new Ponto( pointX , pointY );
 						linha = new Poligono();
 						linha.getPontos().add(pointA);
 						linha.getPontos().add(pointB);
@@ -514,8 +494,8 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 					{
 						pointA = atual.getPontos().get(0);
 						pointB = atual.getPontos().get(1);
-						float[] pointC = atual.getPontos().get( atual.getPontos().size() -1 );
-						float[] pointD = new float[]{ pointX , pointY };
+						Ponto pointC = atual.getPontos().get( atual.getPontos().size() -1 );
+						Ponto pointD = new Ponto( pointX , pointY );
 						linha = new Poligono();
 						linha.getPontos().add(pointA);
 						linha.getPontos().add(pointB);
@@ -527,7 +507,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 				case CIRCLE:
 					if( atual.getPontos().size() == 1 )
 					{
-						pointA = new float[]{ pointX , pointY };
+						pointA = new Ponto( pointX , pointY );
 						linha = new Poligono();
 						linha.getPontos().add( pointA );
 					}
@@ -546,8 +526,8 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	 */
 	public void mouseDragged(MouseEvent e) 
 	{
-		final float pointX = Base.getInstace().normalizarX( Float.valueOf( e.getX() ) );
-		final float pointY = Base.getInstace().normalizarY( Float.valueOf( e.getY() ) );
+		final double pointX = Base.getInstace().normalizarX( Double.valueOf( e.getX() ) );
+		final double pointY = Base.getInstace().normalizarY( Double.valueOf( e.getY() ) );
 		
 		final MessageFormat mf = new MessageFormat("({0},{1})");
 		Base.getInstace().getWindow().setStatus( mf.format( new Object[]{ pointX , pointY } ) );
@@ -564,8 +544,8 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 						int idx = selectedPointIdx;
 						
 						poligon.resetBoundBox();
-						poligon.getPontos().get(idx)[0] += ( (xValue - pointX) * -1 );
-						poligon.getPontos().get(idx)[1] += ( (yValue - pointY) * -1 );
+						poligon.getPontos().get(idx).setX( poligon.getPontos().get(idx).getX() + ( (xValue - pointX) * -1 ) );
+						poligon.getPontos().get(idx).setY( poligon.getPontos().get(idx).getY() + ( (yValue - pointY) * -1 ) );
 						poligon.updateBoundBox();
 					}
 				}
@@ -573,11 +553,11 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 				{
 					for( Poligono poligon : selecionados )
 					{
-						for( float[] points : poligon.getPontos() )
+						for( Ponto points : poligon.getPontos() )
 						{
 							poligon.resetBoundBox();
-							points[0] += ( (xValue - pointX) * -1 );
-							points[1] += ( (yValue - pointY) * -1 );
+							points.setX( points.getX() + ( (xValue - pointX) * -1 ) );
+							points.setY( points.getY() + ( (yValue - pointY) * -1 ) );
 							poligon.updateBoundBox();
 						}
 					}
@@ -595,7 +575,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 			case CIRCLE:
 				if( atual != null && atual.getPontos().size() == 1 )
 				{
-					float[] pointA = new float[]{ pointX , pointY };
+					Ponto pointA = new Ponto( pointX , pointY );
 					linha = new Poligono();
 					linha.getPontos().add( pointA );
 				}

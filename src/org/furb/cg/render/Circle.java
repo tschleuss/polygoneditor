@@ -8,6 +8,7 @@ import static java.lang.Math.sin;
 import javax.media.opengl.GL;
 
 import org.furb.cg.model.Poligono;
+import org.furb.cg.model.Ponto;
 import org.furb.cg.util.Base;
 import org.furb.cg.util.Mode;
 
@@ -29,24 +30,25 @@ public class Circle extends org.furb.cg.render.Base {
 	 * @param poligon
 	 */
 	@Override
-	public void draw(Poligono poligon) {
-		float[] origem	= poligon.getPontos().get(0);
-		float[] raio	= poligon.getPontos().get(1);
-		float radius	= Float.valueOf( String.valueOf( floor( Base.getInstace().distancia(origem, raio) ) ) );
+	public void draw(Poligono poligon) 
+	{
+		Ponto origem	= poligon.getPontos().get(0);
+		Ponto raio		= poligon.getPontos().get(1);
+		double radius	= Float.valueOf( String.valueOf( floor( Base.getInstace().distancia(origem, raio) ) ) );
 		
 		poligon.getPontos().clear();
 		
-		float angle   	= 	0.0f;
-		float vectorY1	=	origem[1] + radius;
-		float vectorX1	=	origem[0];
-		float vectorX;
-		float vectorY;
+		double angle	= 0.0f;
+		double vectorY1		= origem.getY() + radius;
+		double vectorX1		= origem.getX();
+		double vectorX;
+		double vectorY;
 
 		for(angle = 0.0f; angle <= (2.0f * PI); angle += 0.01f ) 
 		{		
-			vectorX = origem[0] + (radius * (float)sin((double)angle));
-			vectorY = origem[1] + (radius * (float)cos((double)angle));		
-			poligon.getPontos().add( new float[] { vectorX1 , vectorY1 } );
+			vectorX = origem.getX() + (radius * sin(angle));
+			vectorY = origem.getY() + (radius * cos(angle));		
+			poligon.getPontos().add( new Ponto(vectorX1, vectorY1) );
 			poligon.updateBoundBox();
 			vectorY1 = vectorY;
 			vectorX1 = vectorX;			
@@ -72,8 +74,8 @@ public class Circle extends org.furb.cg.render.Base {
 					
 					gl.glBegin(GL.GL_LINE_STRIP);
 					
-					for( float[] point : poligon.getPontos() ) { 
-						gl.glVertex2d( point[0], point[1] );	
+					for( Ponto point : poligon.getPontos() ) { 
+						gl.glVertex2d( point.getX(), point.getY() );	
 					}
 					
 					gl.glEnd();
