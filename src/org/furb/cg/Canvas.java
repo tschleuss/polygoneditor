@@ -8,7 +8,6 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.nio.FloatBuffer;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -113,10 +112,10 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		line = new PreviewLine(gl);
 	}
 
-	public void updateDimensions(double height, double width)
+	public void updateDimensions(double width, double height)
 	{
-		right = height + 20;
-		top = width + 100;
+		right = width + 20;
+		top = height + 100;
 
 		Base.getInstace().setScreenWidth(right);
 		Base.getInstace().setScreenHeight(top);
@@ -649,8 +648,8 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		return;
 	}
 
-	public void reshape(GLAutoDrawable glDrawable, int windowX, int windowY, int maxX, int maxY) {
-		this.updateDimensions(maxX, maxY);
+	public void reshape(GLAutoDrawable glDrawable, int windowX, int windowY, int width, int height) {
+		this.updateDimensions(width, height);
 	}
 
 	public Mode getMode() {
