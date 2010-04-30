@@ -14,6 +14,7 @@ public class RotateBBoxGlMultMatrixd implements GLEventListener, KeyListener {
 	private GL gl;
 	private GLU glu;
 	private GLAutoDrawable glDrawable;
+	
 	private Transform matrix = new Transform();
 	
 	private Point[] object = {
@@ -76,9 +77,6 @@ public class RotateBBoxGlMultMatrixd implements GLEventListener, KeyListener {
 		double	Lx = 0;		double	Ly = 0;		double	Lz = 0;
 		double	Sx = 1;		double	Sy = 1;		double	Sz = 1;
 		
-		Transform matrixTranslate = new Transform();
-		Transform matrixTranslateInverse = new Transform();
-		Transform matrixScale = new Transform();
 
 		switch (e.getKeyCode()) {
 			case KeyEvent.VK_P:
@@ -87,12 +85,15 @@ public class RotateBBoxGlMultMatrixd implements GLEventListener, KeyListener {
 				System.out.println("P2[" + object[2].getX() + "," + object[2].getY() + "," + object[2].getZ() + "," + object[2].getW() + "]");
 				System.out.println("P3[" + object[3].getX() + "," + object[3].getY() + "," + object[3].getZ() + "," + object[3].getW() + "]");
 				break;
+			/*
 			case KeyEvent.VK_M:
+				
 				System.out.println("______________________");
 				System.out.println("|" + matrix.getElement( 0) + " | " + matrix.getElement( 1) + " | " + matrix.getElement( 2) + " | " + matrix.getElement( 3));
 				System.out.println("|" + matrix.getElement( 4) + " | " + matrix.getElement( 5) + " | " + matrix.getElement( 6) + " | " + matrix.getElement( 7));
 				System.out.println("|" + matrix.getElement( 8) + " | " + matrix.getElement( 9) + " | " + matrix.getElement(10) + " | " + matrix.getElement(11));
 				System.out.println("|" + matrix.getElement(12) + " | " + matrix.getElement(13) + " | " + matrix.getElement(14) + " | " + matrix.getElement(15));
+				
 				break;
 			
 			case KeyEvent.VK_RIGHT:
@@ -145,11 +146,26 @@ public class RotateBBoxGlMultMatrixd implements GLEventListener, KeyListener {
 			case KeyEvent.VK_3:
 				Lx = -15.0; 	Ly = -15.0;
 				Sx = 2;		Sy = 2;
-				matrix.setElement( 0,Sx); 				matrix.setElement( 1,0.0);					matrix.setElement( 2,0.0);					matrix.setElement( 3,0.0);
-				matrix.setElement( 4,0.0); 				matrix.setElement( 5,Sy);					matrix.setElement( 6,0.0);					matrix.setElement( 7,0.0);
-				matrix.setElement( 8,0.0);				matrix.setElement( 9,0.0);					matrix.setElement(10,Sz);					matrix.setElement(11,0.0);
-				matrix.setElement(12,(Lx * Sx) -Lx); 	matrix.setElement(13,(Ly * Sy) - Ly);		matrix.setElement(14,(Lz * Sz) -Lz);		matrix.setElement(15,1.0);
+				matrix.setElement( 0,Sx); 				matrix.setElement( 1,0);					matrix.setElement( 2,0);					matrix.setElement( 3,0);
+				matrix.setElement( 4,0); 				matrix.setElement( 5,Sy);					matrix.setElement( 6,0);					matrix.setElement( 7,0);
+				matrix.setElement( 8,0);				matrix.setElement( 9,0);					matrix.setElement(10,Sz);					matrix.setElement(11,0);
+				matrix.setElement(12,(Lx * Sx) -Lx); 	matrix.setElement(13,(Ly * Sy) - Ly);		matrix.setElement(14,(Lz * Sz) -Lz);		matrix.setElement(15,1);
 				System.out.println("Matriz Global para escala com um ponto fixo.");
+				break;
+			*/
+			case KeyEvent.VK_5:
+				
+				Lx = -15.0; 	
+				Ly = -15.0;
+
+				Sx = 2;		
+				Sy = 2;
+				
+				matrix.setElement(0, 0, Sx); 			matrix.setElement(0, 1, 0);				matrix.setElement(0, 2, 0);				matrix.setElement(0, 3, 0);
+				matrix.setElement(1, 0, 0); 			matrix.setElement(1, 1, Sy);			matrix.setElement(1, 2, 0);				matrix.setElement(1, 3, 0);
+				matrix.setElement(2, 0,0);				matrix.setElement(2, 1,0);				matrix.setElement(2, 2,Sz);				matrix.setElement(2, 3,0);
+				matrix.setElement(3, 0,(Lx * Sx) -Lx);	matrix.setElement(3, 1,(Ly * Sy) - Ly);	matrix.setElement(3, 2,(Lz * Sz) -Lz);	matrix.setElement(3, 3,1);
+
 				break;
 		}
 
