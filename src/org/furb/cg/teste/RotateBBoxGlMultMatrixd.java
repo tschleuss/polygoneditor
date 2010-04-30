@@ -20,29 +20,52 @@ public class RotateBBoxGlMultMatrixd implements GLEventListener, KeyListener {
 								0, 0, 0, 1};
 	
 	private Point[] object = {
-			new Point(2.0,2.0,0.0,1.0),
-			new Point(2.0,4.0,0.0,1.0),		
-			new Point(4.0,4.0,0.0,1.0),
-			new Point(4.0,2.0,0.0,1.0) };	
+			new Point(2.0,2.0,1.0,1.0),
+			new Point(2.0,4.0,1.0,1.0),		
+			new Point(4.0,4.0,1.0,1.0),
+			new Point(4.0,2.0,1.0,1.0) };	
 
 	public Point transformPoint(Point point) {
 		
-		/*
-		 * ROTAÇÃO
-		final double radian = (5 * Math.PI) / 180;
-		final double cosAngle = Math.cos(radian);
-		final double sinAngle = Math.sin(radian);
+		
+		 //ROTAÇÃO 
+		double radian = (5 * Math.PI) / 180;
+		double cosAngle = Math.cos(radian);
+		double sinAngle = Math.sin(radian);
+		
+		double xOrigin = point.getX();
+		double yOrigin = point.getY();
+		
+		double[] translate = {  1, 0, 0,
+				                0, 1, 0, 
+				                -xOrigin,  -yOrigin, 1};
+		
+		double[] translateInverse = {  1, 0, 0,
+						               0, 1, 0, 
+						               xOrigin,  yOrigin, 1};
+		
 		
 		double[] rotate = {  cosAngle, sinAngle, 0,
 			                -sinAngle, cosAngle, 0, 
 							 0, 0, 1};
-							
-		Point pointResult = new Point(
+
+		point = new Point(
+						translate[0]*point.getX()  + translate[3]*point.getY() + translate[6]*point.getZ(),
+						translate[1]*point.getX()  + translate[4]*point.getY() + translate[5]*point.getZ(),
+						0,0);
+
+		point = new Point(
 				rotate[0]*point.getX()  + rotate[3]*point.getY() + rotate[6]*point.getZ(),
 				rotate[1]*point.getX()  + rotate[4]*point.getY() + rotate[5]*point.getZ(),
 				0,0);
-		*/
+
+		Point pointResult = new Point(
+				translateInverse[0]*point.getX()  + translateInverse[3]*point.getY() + translateInverse[6]*point.getZ(),
+				translateInverse[1]*point.getX()  + translateInverse[4]*point.getY() + translateInverse[5]*point.getZ(),
+				0,0);
 		
+		/*
+		//ESCALA
 		double[] escale = {  0.5, 0, 0,
 			                 0, 0.5, 0, 
 							 0, 0, 1};
@@ -51,6 +74,7 @@ public class RotateBBoxGlMultMatrixd implements GLEventListener, KeyListener {
 				escale[0]*point.getX()  + escale[3]*point.getY() + escale[6]*point.getZ(),
 				escale[1]*point.getX()  + escale[4]*point.getY() + escale[5]*point.getZ(),
 				0,0);
+		*/
 		
 		return pointResult;
 	}
