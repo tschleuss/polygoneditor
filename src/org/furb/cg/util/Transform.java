@@ -72,10 +72,14 @@ public final class Transform {
 		double	Sy = Sx;		
 		double	Sz = Sx;
 		
-		this.setElement(0, 0, Sx); 				this.setElement(0, 1, 0);				this.setElement(0, 2, 0);				this.setElement(0, 3, 0);
-		this.setElement(1, 0, 0); 				this.setElement(1, 1, Sy);				this.setElement(1, 2, 0);				this.setElement(1, 3, 0);
-		this.setElement(2, 0,0);				this.setElement(2, 1,0);				this.setElement(2, 2,Sz);				this.setElement(2, 3,0);
-		this.setElement(3, 0,(Lx * Sx) -Lx);	this.setElement(3, 1,(Ly * Sy) - Ly);	this.setElement(3, 2,(Lz * Sz) -Lz);	this.setElement(3, 3,1);
+		double[][] matrix = new double[][]{
+				{Sx,			0,				0,				0},
+				{0, 			Sy, 			0, 				0},
+				{0, 			0, 				Sz, 			0},
+				{(Lx * Sx) -Lx, (Ly * Sy) - Ly, (Lz * Sz) -Lz, 	1}
+		};
+		
+		this.transformMatrix = new Matrix(matrix);
 	}
 	
 	/**
@@ -93,14 +97,14 @@ public final class Transform {
 		double	Lx = -orignX;
 		double	Ly = -orignY;
 		
-		double pos3_0 = ((Lx * cosAngle) + (Ly * sinAngle)) -Lx;
-		double pos3_1 = ((Lx * (-sinAngle)) + (Ly * cosAngle))- Ly;
-		double pos3_2 = 1;
+		double[][] matrix = new double[][]{
+				{cosAngle,									-sinAngle,									0,	0},
+				{sinAngle, 									cosAngle, 									0, 	0},
+				{0, 										0, 											1, 	0},
+				{((Lx * cosAngle) + (Ly * sinAngle)) -Lx,  ((Lx * (-sinAngle)) + (Ly * cosAngle))- Ly, 	1,	1}
+		};
 		
-		this.setElement(0, 0, cosAngle); 	this.setElement(0, 1, -sinAngle);	this.setElement(0, 2, 0);		this.setElement(0, 3, 0);
-		this.setElement(1, 0, sinAngle); 	this.setElement(1, 1, cosAngle);	this.setElement(1, 2, 0);		this.setElement(1, 3, 0);
-		this.setElement(2, 0,0);			this.setElement(2, 1,0);			this.setElement(2, 2,1);		this.setElement(2, 3,0);
-		this.setElement(3, 0,pos3_0);		this.setElement(3, 1,pos3_1);		this.setElement(3, 2,pos3_2);	this.setElement(3, 3,1);
+		this.transformMatrix = new Matrix(matrix);
 	}
 
 	/**
