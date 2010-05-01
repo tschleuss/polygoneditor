@@ -180,8 +180,6 @@ public class Matrix {
 	 */
 	public double[] product(double[] vetor)
 	{
-		final int m = this.getColumns();
-
 		return secureProduct(vetor);
 	}
 	

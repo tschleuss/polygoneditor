@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.furb.cg.util.Mode;
-import org.furb.cg.util.Rotation;
+import org.furb.cg.util.Transform;
 
 /**
  * Representa a estrutura dos poligonos.
@@ -107,17 +107,25 @@ public class Poligono {
 	
 	private void rotatePoints(){
 		
-		for( Ponto points : pontos )
+		Transform.getInstace().ConfigRotateMatrix(centerX, centerY);
+		
+		for( Ponto ponto : pontos )
 		{
-			final double pontoX = points.getX();
-			final double pontoY = points.getY();
-			
-			if(this.isSelected())
-			{
-				final double newXY[] = Rotation.getInstace().rotate(centerX, centerY, pontoX, pontoY);	
-				points.setX( points.getX() + newXY[0] );
-				points.setY( points.getY() + newXY[1] );
-			}
+			Transform.getInstace().transformPoint(ponto);
+		}
+		
+		this.resetBoundBox();
+		this.updateBoundBox();
+	}
+	
+	
+	private void scalePoints(){
+
+		Transform.getInstace().ConfigScaleMatrix(centerX, centerY, 0);
+		
+		for( Ponto ponto : pontos )
+		{
+			Transform.getInstace().transformPoint(ponto);
 		}
 		
 		this.resetBoundBox();
@@ -127,6 +135,13 @@ public class Poligono {
 	public void setRotate(boolean rotate) {
 		if(rotate){
 			rotatePoints();
+		}
+	}
+	
+
+	public void setScale(boolean scale) {
+		if(scale && this.isSelected()){
+			scalePoints();
 		}
 	}
 

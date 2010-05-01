@@ -6,6 +6,7 @@ public class Ponto {
 	private double y;
 	private double z;
 	private double w;
+	private Matrix matrix;
 	
 	public Ponto() {
 		this(0, 0, 0, 1);
@@ -20,8 +21,9 @@ public class Ponto {
 		this.y = y;
 		this.z = z;
 		this.w = w;
+		this.generateMatrix();
 	}
-	
+
 	public double getX() {
 		return x;
 	}
@@ -52,5 +54,18 @@ public class Ponto {
 
 	public void setW(double w) {
 		this.w = w;
+	}
+
+	public void generateMatrix() {
+		
+		double[][] matrix = new double[][]{
+								{this.getX(),this.getY(),this.getZ(),this.getW()}
+							};
+		
+		this.matrix = new Matrix(matrix);
+	}
+
+	public Matrix getMatrix() {
+		return matrix;
 	}
 }

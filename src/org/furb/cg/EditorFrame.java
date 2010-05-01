@@ -128,7 +128,7 @@ public class EditorFrame extends JFrame {
         this.initButton("Desenhar uma spline",		"A spline será exibida a partir do 4º ponto de desenho",				btSpline,		Mode.SPLINE,			"spline.png"		, true, 	true	);
         this.initButton("Selecionar poligono", 		"",																		selectPolygon, 	Mode.SELECTION,			"select.png" 		, true,		true	);
         this.initButton("Rotacionar poligono", 		"Utilize o scroll do mouse para rotacionar os objetos selecionados",	rotatePolygon, 	Mode.ROTATE,			"rotacao.png" 		, true,		true	);
-        this.initButton("Escalonar poligono", 		"",																		scalePolygon, 	Mode.DO_NOTHING,		"scale.png" 		, true,		true	);
+        this.initButton("Escalonar poligono", 		"",																		scalePolygon, 	Mode.SCALE,				"scale.png" 		, true,		true	);
         this.initButton("Incrementar Zoom", 		"",																		zoomIn, 		Mode.DO_NOTHING,		"zoomIn.png"		, false,	false	);
         this.initButton("Decrementar Zoom", 		"",																		zoomOut, 		Mode.DO_NOTHING,		"zoomOut.png"		, false,	false	);
         this.initButton("Pan Vertical e Horizontal","",																		pan, 			Mode.PAN,				"pan.png"			, false,	true	);

@@ -27,8 +27,8 @@ import org.furb.cg.render.Spline;
 import org.furb.cg.util.Base;
 import org.furb.cg.util.Mode;
 import org.furb.cg.util.MouseCursor;
-import org.furb.cg.util.Rotation;
 import org.furb.cg.util.ScanLine;
+import org.furb.cg.util.Transform;
 
 import com.sun.opengl.util.GLUT;
 
@@ -50,7 +50,9 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	private Mode			mode			= null;
 	private Color			color			= Color.BLACK;
 	private boolean			showBoundBox	= false;
+	
 	private boolean 		isRotating 		= false;
+	private boolean 		isScaling 		= false;
 
 	private double			left;
 	private double			right;
@@ -175,6 +177,8 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 			if(poligonMode != Mode.CIRCLE){
 				poligon.setRotate(isRotating);
 			}
+			
+			poligon.setScale(isScaling);
 
 			switch(poligonMode)
 			{
@@ -229,6 +233,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		}
 		
 		isRotating = false;
+		isScaling = false;
 	}
 
 	/**
@@ -418,6 +423,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 					xValue = pointX;
 					yValue = pointY;
 					break;
+				case SCALE:
 				case ROTATE:
 				case SELECTION:
 					selecionados = ScanLine.getInstace().intersectionCheck(poligonos, pointX, pointY);
@@ -533,7 +539,6 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		
 		switch(this.getMode())
 		{
-			case ROTATE: 
 			case SELECTION:
 				if( selectedPoint != null )
 				{
@@ -679,30 +684,45 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 
 	public void mouseWheelMoved(MouseWheelEvent e) {
 		
-		int move = 5;
-		int notches = e.getWheelRotation();
-		
-        if (notches < 0) {
-        	move = -move;
-        }
-		
 		boolean refresh = false;
+		
+		int notches = e.getWheelRotation();
 		
 		switch(this.getMode()){
 			
 			case ROTATE:
+				
+				double angle = 5;
 
-		        Rotation.getInstace().setAngle(move);
+		        if (notches < 0) {
+		        	angle = angle * -1;
+		        }
 
+		        Transform.getInstace().setAngle(angle);
+		        
 		        isRotating = true;
 				refresh = true;
 				break;
-		
+				
+			case SCALE:
+				
+				double scale;
+				
+		        if (notches < 0) {
+		        	scale = 0.5;
+		        }else{
+		        	scale = 2;
+		        }
+
+				Transform.getInstace().setScale(scale);
+				
+				isScaling = true;
+				refresh = true;
+				break;
 		}
 		
 		if(refresh){
 			refreshRender();
 		}
-		
 	}
 }
