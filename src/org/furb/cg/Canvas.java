@@ -282,6 +282,10 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		atual	= null;
 		mode	= Mode.SELECTION;
 		
+		Base.getInstace().setScale(scale);
+		Base.getInstace().setPanX(panX);
+		Base.getInstace().setPanY(panY);
+		
 		this.refreshRender();
 	}
 	
