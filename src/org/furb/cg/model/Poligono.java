@@ -44,10 +44,13 @@ public class Poligono {
 		double vX = 0.0;
 		double vY = 0.0;
 		
-		for( Ponto points : pontos )
+		for( Ponto ponto : pontos )
 		{
-			vX = points.getX();
-			vY = points.getY();
+			
+			ponto.generateMatrix();
+			
+			vX = ponto.getX();
+			vY = ponto.getY();
 			
 			if ( vX > maxX ) { maxX = vX; }
 			if ( vX < minX ) { minX = vX; }
@@ -120,7 +123,7 @@ public class Poligono {
 	
 	
 	private void scalePoints(){
-
+		
 		Transform.getInstace().ConfigScaleMatrix(centerX, centerY, 0);
 		
 		for( Ponto ponto : pontos )

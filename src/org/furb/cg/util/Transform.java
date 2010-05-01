@@ -90,8 +90,8 @@ public final class Transform {
 		double cosAngle = Math.cos(radian);
 		double sinAngle = Math.sin(radian);
 		
-		double	Lx = -orignX;		
-		double	Ly = -orignY;		
+		double	Lx = -orignX;
+		double	Ly = -orignY;
 		
 		double pos3_0 = ((Lx * cosAngle) + (Ly * sinAngle)) -Lx;
 		double pos3_1 = ((Lx * (-sinAngle)) + (Ly * cosAngle))- Ly;
@@ -115,8 +115,6 @@ public final class Transform {
 		p.setY( result.getAt(0, 1));
 		p.setZ( result.getAt(0, 2));
 		p.setW( result.getAt(0, 3));
-		
-		p.generateMatrix();
 	}
 	
 	/**
