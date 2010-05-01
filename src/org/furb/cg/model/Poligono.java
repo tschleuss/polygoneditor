@@ -133,7 +133,7 @@ public class Poligono {
 	}
 	
 	public void setRotate(boolean rotate) {
-		if(rotate){
+		if(rotate && this.isSelected()){
 			rotatePoints();
 		}
 	}

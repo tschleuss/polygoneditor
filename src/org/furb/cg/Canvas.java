@@ -709,9 +709,9 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 				double scale;
 				
 		        if (notches < 0) {
-		        	scale = 0.5;
+		        	scale = 0.6;
 		        }else{
-		        	scale = 2;
+		        	scale = 1.4;
 		        }
 
 				Transform.getInstace().setScale(scale);
