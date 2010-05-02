@@ -80,22 +80,6 @@ public class Base {
 		return newY;
 	}
 	
-	public double[] rotacionarXY (double x, double y, double angulo)
-	{
-		final double radianos = (angulo * Math.PI) / 180;
-		final double cosAngulo = Math.cos(radianos);
-		final double sinAngulo = Math.sin(radianos);
-		
-		double newX = (x * cosAngulo) - (y * sinAngulo);
-		double newY = (y * cosAngulo) + (x * sinAngulo);
-		
-		double[] valores = new double[2];
-		valores [0] = newX; 
-		valores [1] = newY; 
-		
-		return valores;
-	}
-	
 
 	/**
 	 * Formula usada para calcular a distancia
