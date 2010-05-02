@@ -218,7 +218,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 			
 			if( poligon.isSelected() ) 
 			{
-				boundBox.drawOnSelctedPoligons(poligon);
+				boundBox.drawOnSelctedPoligons(poligon, this.getMode());
 			}
 			
 			if( showBoundBox )
