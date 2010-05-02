@@ -6,7 +6,7 @@ import org.furb.cg.model.Ponto;
 /**
  * Classe base responsavel por guardar
  * funcoes que envolvam o calculo das transformações 
- * de rotação e escala de um ponto 2D (Singleton).
+ * de rotacao e escala de um ponto 2D (Singleton).
  * @author Thyago Schleuss
  * @author Luiz Diego Aquino
  * @since 01/05/2010
@@ -14,7 +14,7 @@ import org.furb.cg.model.Ponto;
 public final class Transform {
 	
 	private static Transform transform = new Transform();
-	
+	private Matrix transformMatrix;
 	private double scale;
 	private double angle;
 	
@@ -35,18 +35,12 @@ public final class Transform {
 		
 		return transform;
 	}
-	
 
-//						[ matrix[0] matrix[4] matrix[8]  matrix[12] ]
-//transformMatrix = 	[ matrix[1] matrix[5] matrix[9]  matrix[13] ]
-//						[ matrix[2] matrix[6] matrix[10] matrix[14] ]
-//						[ matrix[3] matrix[7] matrix[11] matrix[15] ]
-	private Matrix transformMatrix;
-	
 	/**
 	 * Configura a matrix inicial
 	 */
-	public void ResetTransformMatrix(){
+	public void ResetTransformMatrix()
+	{
 		double[][] matrix = new double[][]{
 				{1,0,0,0},
 				{0, 1, 0, 0},
@@ -63,7 +57,8 @@ public final class Transform {
 	 * @param orignY
 	 * @param orignZ
 	 */
-	public void ConfigScaleMatrix(double orignX, double orignY, double orignZ){
+	public void ConfigScaleMatrix(double orignX, double orignY, double orignZ)
+	{
 		double	Lx = -orignX;		
 		double	Ly = -orignY;		
 		double	Lz = -orignZ;
@@ -72,11 +67,15 @@ public final class Transform {
 		double	Sy = Sx;		
 		double	Sz = Sx;
 		
+		double pX0Y3 = (Lx * Sx) -Lx;
+		double pX1Y3 = (Ly * Sy) - Ly;
+		double pX2Y3 = (Lz * Sz) -Lz;
+		
 		double[][] matrix = new double[][]{
-				{Sx,			0,				0,				0},
-				{0, 			Sy, 			0, 				0},
-				{0, 			0, 				Sz, 			0},
-				{(Lx * Sx) -Lx, (Ly * Sy) - Ly, (Lz * Sz) -Lz, 	1}
+			{Sx,	0,		0,		0},
+			{0, 	Sy, 	0, 		0},
+			{0, 	0, 		Sz, 	0},
+			{pX0Y3, pX1Y3, pX2Y3, 	1}
 		};
 		
 		this.transformMatrix = new Matrix(matrix);
@@ -89,7 +88,7 @@ public final class Transform {
 	 */
 	public void ConfigRotateMatrix(double orignX, double orignY){
 		
-		 //Cálcula o cos e o sen
+		 //Calcula o cos e o sen
 		double radian = (angle * Math.PI) / 180;
 		double cosAngle = Math.cos(radian);
 		double sinAngle = Math.sin(radian);
@@ -97,11 +96,14 @@ public final class Transform {
 		double	Lx = -orignX;
 		double	Ly = -orignY;
 		
+		double pX0Y3 = ((Lx * cosAngle) + (Ly * sinAngle)) -Lx;
+		double PX1Y3 = ((Lx * (-sinAngle)) + (Ly * cosAngle))- Ly;
+		
 		double[][] matrix = new double[][]{
-				{cosAngle,									-sinAngle,									0,	0},
-				{sinAngle, 									cosAngle, 									0, 	0},
-				{0, 										0, 											1, 	0},
-				{((Lx * cosAngle) + (Ly * sinAngle)) -Lx,  ((Lx * (-sinAngle)) + (Ly * cosAngle))- Ly, 	1,	1}
+			{cosAngle,	-sinAngle,	0,	0},
+			{sinAngle, 	cosAngle, 	0, 	0},
+			{0, 		0, 			1, 	0},
+			{pX0Y3,  	PX1Y3, 		1,	1}
 		};
 		
 		this.transformMatrix = new Matrix(matrix);
@@ -111,8 +113,8 @@ public final class Transform {
 	 * Aplica a matrix de transformação a um ponto
 	 * @param p
 	 */
-	public void transformPoint(Ponto p) {
-		
+	public void transformPoint(Ponto p) 
+	{
 		Matrix result = p.getMatrix().product(this.transformMatrix);
 		
 		p.setX( result.getAt(0, 0));
