@@ -7,8 +7,6 @@ package org.furb.cg.model;
 public class Matrix {
 
 	private double[][] elements;
-
-	private final int size = 4;
 	
 	/**
 	 * Inicializa a matriz no contrutor
@@ -596,10 +594,14 @@ public class Matrix {
 		return retValue.toString();
 	}
 	
+	/**
+	 * Desenha a Matrix na tela
+	 * @return
+	 */
 	public String toMatrixString() 
 	{
 		StringBuilder retValue = new StringBuilder();
-		Matrix printMatrix = this.convertInMatrix(size, size);
+		Matrix printMatrix = this.convertInMatrix(4, 4);
 		
 		for( int i = 0; i < printMatrix.getRows(); i++ ) 
 		{

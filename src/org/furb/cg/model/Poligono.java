@@ -102,14 +102,36 @@ public class Poligono {
 		minY = Double.POSITIVE_INFINITY;
 	}
 
+	/**
+	 * Indica que o poligono esta selecionado
+	 * pelo usuario
+	 * @param selected
+	 */
 	public void setSelected(boolean selected) {
 		this.resetBoundBox();
 		this.updateBoundBox();
+		this.reesetSelectedPoints();
 		this.selected = selected;
 	}
 	
-	private void rotatePoints(){
-		
+	/**
+	 * Metodo utilizado para resetar os pontos
+	 * selecionados.
+	 */
+	public void reesetSelectedPoints()
+	{
+		for( Ponto ponto : pontos )
+		{
+			ponto.setSelected(false);
+		}
+	}
+	
+	/**
+	 * Metodo utilizado para rotacionar o poligono,
+	 * de acordo com os movimentos do usaurio.
+	 */
+	private void rotatePoints()
+	{
 		Transform.getInstace().ConfigRotateMatrix(centerX, centerY);
 		
 		for( Ponto ponto : pontos )
@@ -121,9 +143,12 @@ public class Poligono {
 		this.updateBoundBox();
 	}
 	
-	
-	private void scalePoints(){
-		
+	/**
+	 * Metodo utilizado realizar a escala nos poligonos,
+	 * de acordo com os movimentos do usuario.
+	 */
+	private void scalePoints()
+	{
 		Transform.getInstace().ConfigScaleMatrix(centerX, centerY, 0);
 		
 		for( Ponto ponto : pontos )
@@ -135,14 +160,25 @@ public class Poligono {
 		this.updateBoundBox();
 	}
 	
-	public void setRotate(boolean rotate) {
+	/**
+	 * Metodo que indica que o poligono
+	 * pode ser rotacionado.
+	 * @param rotate
+	 */
+	public void setRotate(boolean rotate) 
+	{
 		if(rotate && this.isSelected()){
 			rotatePoints();
 		}
 	}
-	
 
-	public void setScale(boolean scale) {
+	/**
+	 * Metodo que indica que o poligono
+	 * pode ser escalado.
+	 * @param scale
+	 */
+	public void setScale(boolean scale) 
+	{
 		if(scale && this.isSelected()){
 			scalePoints();
 		}

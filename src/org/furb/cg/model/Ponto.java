@@ -7,6 +7,7 @@ public class Ponto {
 	private double z;
 	private double w;
 	private Matrix matrix;
+	private boolean selected;
 	
 	public Ponto() {
 		this(0, 0, 0, 1);
@@ -59,13 +60,21 @@ public class Ponto {
 	public void generateMatrix() {
 		
 		double[][] matrix = new double[][]{
-								{this.getX(),this.getY(),this.getZ(),this.getW()}
-							};
+			{this.getX(),this.getY(),this.getZ(),this.getW()}
+		};
 		
 		this.matrix = new Matrix(matrix);
 	}
 
 	public Matrix getMatrix() {
 		return matrix;
+	}
+
+	public boolean isSelected() {
+		return selected;
+	}
+
+	public void setSelected(boolean selected) {
+		this.selected = selected;
 	}
 }
