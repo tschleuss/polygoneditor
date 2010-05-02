@@ -120,6 +120,7 @@ public class ScanLine {
 			}
 		}
 		
+		this.findPoint(selecionados, x, y);
 		return selecionados;
 	}
 	
@@ -148,4 +149,30 @@ public class ScanLine {
 		return false;
 	}
 	
+	/**
+	 * Verificar se o usuarios clicou em um dos pontos de
+	 * controle e o seleciona.
+	 * @param poligonos
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public Ponto findPoint(List<Poligono> poligonos, double x, double y)
+	{
+		//Para todos os poligonos da tela
+		for( Poligono poligon : poligonos )
+		{
+			for( Ponto points : poligon.getPontos() )
+			{
+				//Teste - "boundbox" do ponto
+				if( x >= (points.getX() - 10) && x <= (points.getX() + 10) && 
+					y >= (points.getY() - 10) && y <= (points.getY() + 10) )
+				{
+					points.setSelected(true);
+				}	
+			}
+		}
+		
+		return null;
+	}
 }

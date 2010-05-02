@@ -16,7 +16,8 @@ public enum Mode {
 	ROTATE			(6),
 	SCALE			(7),
 	PAN				(8),
-	DO_NOTHING		(9);
+	MOVE_POINT		(9),
+	DO_NOTHING		(0);
 	
 	private int mode;
 	

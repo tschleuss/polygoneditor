@@ -7,10 +7,6 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.image.MemoryImageSource;
 
-import javax.imageio.ImageIO;
-
-import sun.awt.CustomCursor;
-
 public class MouseCursor {
 
 	private static MouseCursor mouseCursor = new MouseCursor();

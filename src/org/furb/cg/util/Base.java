@@ -71,9 +71,8 @@ public class Base {
 	public double normalizarY(double y)
 	{
 		//tamanho da toolbar
-		final double toolbarFix = 90.0f;
 		final double yOrigem = screenHeight;		
-		final double yDestino = bottom - (top + toolbarFix);
+		final double yDestino = bottom - top;
 		
 		double newY = ( y * ( yDestino / yOrigem ) ) + top;
 		newY = (newY * scale) + panY;
