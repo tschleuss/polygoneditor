@@ -5,8 +5,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -20,7 +18,6 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollBar;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
@@ -51,7 +48,8 @@ public class EditorFrame extends JFrame {
 	private JButton		closePoligon 	= null;
 	private JButton		selectPolygon	= null;
 	private JButton		rotatePolygon	= null;
-	private JButton		scalePolygon		= null;
+	private JButton		scalePolygon	= null;
+	private JButton		movePoint		= null;
     private JButton 	btCorPadrao		= null;
     private JButton 	btSair			= null;
     private JButton 	btCirculo		= null;
@@ -76,7 +74,7 @@ public class EditorFrame extends JFrame {
 		Base.getInstace().setScreenWidth(screenWidth);
 		Base.getInstace().setScreenHeight(screenHeight);
 		
-		super.setTitle("[PolygonEditor] - FURB 2010 - Computacao Gráfica");
+		super.setTitle("[PolygonEditor] - FURB 2010 - Computacao Grafica");
 		super.setMinimumSize(new Dimension(screenWidth, screenHeight));
 		super.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		super.getContentPane().setLayout(new BorderLayout());
@@ -91,7 +89,6 @@ public class EditorFrame extends JFrame {
 	 */
 	private void initGUI()
 	{
-		
 		this.setIconImage(new ImageIcon(getClass().getResource("/org/furb/cg/icons/app.png")).getImage());
 		
         pnBotoes		= new JToolBar();
@@ -107,6 +104,7 @@ public class EditorFrame extends JFrame {
         selectPolygon	= new JButton();
         scalePolygon	= new JButton();
         rotatePolygon	= new JButton();
+        movePoint		= new JButton();
         zoomIn			= new JButton();
         zoomOut			= new JButton();
         pan				= new JButton();
@@ -121,20 +119,21 @@ public class EditorFrame extends JFrame {
         pnBotoes.setMinimumSize(new Dimension(100, 100));
         pnBotoes.setPreferredSize(new Dimension(40, 40));
         
-        this.initButton("Novo documento",			"Essa ação deletará todos os polígonos da tela",						newDocument,	Mode.DO_NOTHING,		"newDocument.png"	, false,	false	);
-        this.initButton("Desenha poligono aberto",	"",																		openPoligon,	Mode.OPEN_POLYGON,		"openPolygon.png"	, true, 	true	);
-        this.initButton("Desenha poligono fechado",	"",																		closePoligon,	Mode.CLOSE_POLYGON,		"closePolygon.png"	, true, 	true	);
-        this.initButton("Desenhar um circulo",		"",																		btCirculo,		Mode.CIRCLE,			"circle.png"		, true, 	true	);
-        this.initButton("Desenhar uma spline",		"A spline será exibida a partir do 4º ponto de desenho",				btSpline,		Mode.SPLINE,			"spline.png"		, true, 	true	);
-        this.initButton("Selecionar poligono", 		"",																		selectPolygon, 	Mode.SELECTION,			"select.png" 		, true,		true	);
-        this.initButton("Rotacionar poligono", 		"Utilize o scroll do mouse para rotacionar os objetos selecionados",	rotatePolygon, 	Mode.ROTATE,			"rotacao.png" 		, true,		true	);
+        this.initButton("Novo documento",			"Essa ação deletará todos os polígonos da tela",							newDocument,	Mode.DO_NOTHING,		"newDocument.png"	, false,	false	);
+        this.initButton("Desenha poligono aberto",	"",																			openPoligon,	Mode.OPEN_POLYGON,		"openPolygon.png"	, true, 	true	);
+        this.initButton("Desenha poligono fechado",	"",																			closePoligon,	Mode.CLOSE_POLYGON,		"closePolygon.png"	, true, 	true	);
+        this.initButton("Desenhar um circulo",		"",																			btCirculo,		Mode.CIRCLE,			"circle.png"		, true, 	true	);
+        this.initButton("Desenhar uma spline",		"A spline será exibida a partir do 4º ponto de desenho",					btSpline,		Mode.SPLINE,			"spline.png"		, true, 	true	);
+        this.initButton("Selecionar poligono", 		"",																			selectPolygon, 	Mode.SELECTION,			"select.png" 		, true,		true	);
+        this.initButton("Rotacionar poligono", 		"Utilize o scroll do mouse para rotacionar os objetos selecionados",		rotatePolygon, 	Mode.ROTATE,			"rotacao.png" 		, true,		true	);
         this.initButton("Escalonar poligono", 		"Utilize o scroll do mouse para alterar o tamanho dos objetos selecionados",scalePolygon, 	Mode.SCALE,				"scale.png" 		, true,		true	);
-        this.initButton("Incrementar Zoom", 		"",																		zoomIn, 		Mode.DO_NOTHING,		"zoomIn.png"		, false,	false	);
-        this.initButton("Decrementar Zoom", 		"",																		zoomOut, 		Mode.DO_NOTHING,		"zoomOut.png"		, false,	false	);
-        this.initButton("Pan Vertical e Horizontal","",																		pan, 			Mode.PAN,				"pan.png"			, false,	true	);
-        this.initButton("Selecionar uma cor",		"",																		btCorPadrao,	Mode.DO_NOTHING, 		"paint.png"			, false, 	false	);
-        this.initButton("Exibir boundbox",			"",																		btBoundBox,		Mode.DO_NOTHING, 		"boundbox.png"		, false, 	false	);
-        this.initButton("Finalizar o programa",		"",																		btSair, 	  	Mode.DO_NOTHING, 		"exit.png"			, true, 	true	);
+        this.initButton("Mover Ponto", 				"", 																		movePoint, 		Mode.MOVE_POINT,		"move_point.png"	, true,		true	);
+        this.initButton("Incrementar Zoom", 		"",																			zoomIn, 		Mode.DO_NOTHING,		"zoomIn.png"		, false,	false	);
+        this.initButton("Decrementar Zoom", 		"",																			zoomOut, 		Mode.DO_NOTHING,		"zoomOut.png"		, false,	false	);
+        this.initButton("Pan Vertical e Horizontal","",																			pan, 			Mode.PAN,				"pan.png"			, false,	true	);
+        this.initButton("Selecionar uma cor",		"",																			btCorPadrao,	Mode.DO_NOTHING, 		"paint.png"			, false, 	false	);
+        this.initButton("Exibir boundbox",			"",																			btBoundBox,		Mode.DO_NOTHING, 		"boundbox.png"		, false, 	false	);
+        this.initButton("Finalizar o programa",		"",																			btSair, 	  	Mode.DO_NOTHING, 		"exit.png"			, true, 	true	);
         
         lbStatus.setText(" ");
         pnStatus.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
@@ -247,7 +246,7 @@ public class EditorFrame extends JFrame {
 		jogl = new Canvas();
 		this.canvas = new GLCanvas(c);
 		pnCanvas.add(this.canvas, BorderLayout.CENTER);
-		//this.getContentPane().add(canvas,BorderLayout.CENTER);
+		this.getContentPane().add(canvas,BorderLayout.CENTER);
 		canvas.addGLEventListener(jogl);        
 		canvas.addKeyListener(jogl);
 		canvas.addMouseListener(jogl);
@@ -343,6 +342,9 @@ public class EditorFrame extends JFrame {
     	        
     	        pan.setBackground(def);
     	        pan.setEnabled(true);
+    	        
+    	        movePoint.setBackground(def);
+    	        movePoint.setEnabled(true);
     	        
     	        if( changeColor ) {
     	        	((JButton)e.getSource()).setBackground(Color.DARK_GRAY);

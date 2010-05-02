@@ -30,8 +30,6 @@ import org.furb.cg.util.MouseCursor;
 import org.furb.cg.util.ScanLine;
 import org.furb.cg.util.Transform;
 
-import com.sun.opengl.util.GLUT;
-
 /**
  * Classe canvas responsavel por todo o
  * processo de renderizacao da tela, atualizacao
@@ -45,7 +43,6 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	
 	private GL				gl				= null;
 	private GLU				glu				= null;
-	private GLUT			glut 			= null;
 	private GLAutoDrawable	glDrawable		= null;
 	private Mode			mode			= null;
 	private Color			color			= Color.BLACK;
@@ -61,8 +58,6 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 
 	private List<Poligono>	poligonos			= new ArrayList<Poligono>();
 	private List<Poligono>	selecionados		= new ArrayList<Poligono>();
-	private int				selectedPointIdx	= 0;
-	private Poligono		selectedPoint		= null;
 	private Poligono		atual				= null;
 	private Poligono		linha				= null;
 	
@@ -102,7 +97,6 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		glDrawable = drawable;
 		gl = drawable.getGL();
 		glu = new GLU();
-		glut = new GLUT();
 		glDrawable.setGL(new DebugGL(gl));
 
 		gl.glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
@@ -116,8 +110,8 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 
 	public void updateDimensions(double width, double height)
 	{
-		right = width + 20;
-		top = height + 100;
+		right = width;
+		top = height;
 
 		Base.getInstace().setScreenWidth(right);
 		Base.getInstace().setScreenHeight(top);
@@ -173,8 +167,8 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 			}
 			poligonMode = poligon.getMode();
 			
-			//não rotaciona circulos
-			if(poligonMode != Mode.CIRCLE){
+			//nao rotaciona circulos
+			if(poligonMode != Mode.CIRCLE) {
 				poligon.setRotate(isRotating);
 			}
 			
@@ -182,21 +176,31 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 
 			switch(poligonMode)
 			{
-				case SPLINE:
+				case SPLINE: {
+					
 					this.spline.draw(poligon);
 					break;
-					
-				default:
+				}
+				
+				default: {
 					
 					switch(poligonMode)
 					{
-						case CLOSE_POLYGON:
+						case CIRCLE: { 
+							
+						}
+						
+						case CLOSE_POLYGON: {
+							
 							gl.glBegin(GL.GL_LINE_LOOP);
 							break;
+						}
 							
-						default:
+						default: {
+							
 							gl.glBegin(GL.GL_LINE_STRIP);
 							break;
+						}
 					}
 
 					for( Ponto pontos : poligon.getPontos() )
@@ -209,6 +213,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 					gl.glEnd();
 					
 					break;
+				}
 			}
 			
 			if( poligon.isSelected() ) 
@@ -416,31 +421,43 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		final double pointX = Base.getInstace().normalizarX( Double.valueOf( e.getX() ) );
 		final double pointY = Base.getInstace().normalizarY( Double.valueOf( e.getY() ) );
 		
-		selectedPoint = null;
-		selectedPointIdx = -1;
-		
 		if( e.getButton() == MouseEvent.BUTTON1 ) 
 		{
-			switch(this.getMode())
+			switch( this.getMode() )
 			{
-				case PAN: 
+				case PAN:  {
 					xValue = pointX;
 					yValue = pointY;
 					break;
-				case SCALE:
-				case ROTATE:
-				case SELECTION:
+				}
+				
+				case SCALE: {
+					
+				}
+				
+				case ROTATE: {
+					
+				}
+				
+				case MOVE_POINT: {
+					
+				}
+				
+				case SELECTION: {
 					selecionados = ScanLine.getInstace().intersectionCheck(poligonos, pointX, pointY);
 					xValue = pointX;
 					yValue = pointY;
 					break;
+				}
 				
-				case DO_NOTHING:
+				case DO_NOTHING: {
 					break;
-				default:
+				}
+				
+				default: {
 					this.addPoint(pointX, pointY);	
 					break;
-			
+				}
 			}
 		} 
 		else if ( e.getButton() == MouseEvent.BUTTON3 ) 
@@ -462,7 +479,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		final double pointY = Base.getInstace().normalizarY( Double.valueOf( e.getY() ) );
 		
 		final MessageFormat mf = new MessageFormat("({0},{1})");
-		Base.getInstace().getWindow().setStatus( mf.format( new Object[]{ pointX , pointY } ) );
+		Base.getInstace().getWindow().setStatus( mf.format( new Object[]{ Math.round(pointX) , Math.round(pointY) } ) );
 
 		if( atual != null && !atual.getPontos().isEmpty() )
 		{
@@ -470,17 +487,20 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 			Ponto pointA = null;
 			Ponto pointB = null;
 			
-			switch(this.getMode())
+			switch( this.getMode() )
 			{
-				case OPEN_POLYGON:
+				case OPEN_POLYGON: {
+					
 					pointA = atual.getPontos().get( atual.getPontos().size() -1 );
 					pointB = new Ponto( pointX , pointY );
 					linha = new Poligono();
 					linha.getPontos().add(pointA);
 					linha.getPontos().add(pointB);
 					break;
+				}
+				
+				case CLOSE_POLYGON: {
 					
-				case CLOSE_POLYGON:
 					if( atual.getPontos().size() == 1 ) 
 					{
 						pointA = atual.getPontos().get( atual.getPontos().size() -1 );
@@ -512,8 +532,10 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 						linha.getPontos().add(pointD);
 					}
 					break;
+				}
 					
-				case CIRCLE:
+				case CIRCLE: {
+					
 					if( atual.getPontos().size() == 1 )
 					{
 						pointA = new Ponto( pointX , pointY );
@@ -521,6 +543,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 						linha.getPontos().add( pointA );
 					}
 					break;
+				}
 			}
 		}
 
@@ -539,25 +562,13 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		final double pointY = Base.getInstace().normalizarY( Double.valueOf( e.getY() ) );
 		
 		final MessageFormat mf = new MessageFormat("({0},{1})");
-		Base.getInstace().getWindow().setStatus( mf.format( new Object[]{ pointX , pointY } ) );
+		Base.getInstace().getWindow().setStatus( mf.format( new Object[]{ Math.round(pointX) , Math.round(pointY) } ) );
 		
 		switch(this.getMode())
 		{
-			case SELECTION:
-				if( selectedPoint != null )
-				{
-					if( selectedPointIdx >= 0 && selectedPointIdx < selectedPoint.getPontos().size() )
-					{
-						Poligono poligon = selectedPoint;
-						int idx = selectedPointIdx;
-						
-						poligon.resetBoundBox();
-						poligon.getPontos().get(idx).setX( poligon.getPontos().get(idx).getX() + ( (xValue - pointX) * -1 ) );
-						poligon.getPontos().get(idx).setY( poligon.getPontos().get(idx).getY() + ( (yValue - pointY) * -1 ) );
-						poligon.updateBoundBox();
-					}
-				}
-				else if ( selecionados != null )
+			case SELECTION: {
+				
+				if ( selecionados != null )
 				{
 					for( Poligono poligon : selecionados )
 					{
@@ -571,8 +582,28 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 					}
 				}
 				break;
+			}
 			
-			case PAN:
+			case MOVE_POINT: {
+				
+				for( Poligono poligon : selecionados )
+				{
+					for( Ponto points : poligon.getPontos() )
+					{
+						if( points.isSelected() )
+						{
+							poligon.resetBoundBox();
+							points.setX( points.getX() + ( (xValue - pointX) * -1 ) );
+							points.setY( points.getY() + ( (yValue - pointY) * -1 ) );
+							poligon.updateBoundBox();		
+						}
+					}
+				}
+				
+				break;
+			}
+			
+			case PAN: {
 				
 				panX +=  (xValue - pointX);
 				panY += (yValue - pointY) ;
@@ -580,7 +611,11 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 				Base.getInstace().setPanX(panX);
 				Base.getInstace().setPanY(panY);
 				
-			case CIRCLE:
+				break;
+			}
+			
+			case CIRCLE: {
+				
 				if( atual != null && atual.getPontos().size() == 1 )
 				{
 					Ponto pointA = new Ponto( pointX , pointY );
@@ -588,6 +623,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 					linha.getPontos().add( pointA );
 				}
 				break;
+			}
 		}
 		
 		xValue = pointX;
@@ -623,9 +659,58 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		return;
 	}
 	
-	public void mouseReleased(MouseEvent e) {
+	/**
+	 * Listener chamado quando o usuario
+	 * gira o scroll do mouse
+	 */
+	public void mouseWheelMoved(MouseWheelEvent e)
+	{
+		boolean refresh = false;
+		int notches = e.getWheelRotation();
+		
+		switch(this.getMode())
+		{
+			case ROTATE: {
+				
+				double angle = 5;
 
-		if(this.mode == Mode.PAN){
+		        if (notches < 0) {
+		        	angle = angle * -1;
+		        }
+
+		        Transform.getInstace().setAngle(angle);
+		        
+		        isRotating = true;
+				refresh = true;
+				break;
+			}
+				
+			case SCALE: {
+				
+				double scale;
+				
+		        if (notches < 0) {
+		        	scale = 0.6;
+		        }else{
+		        	scale = 1.4;
+		        }
+
+				Transform.getInstace().setScale(scale);
+				
+				isScaling = true;
+				refresh = true;
+				break;
+			}
+		}
+		
+		if(refresh) {
+			refreshRender();
+		}
+	}
+	
+	public void mouseReleased(MouseEvent e) 
+	{
+		if( this.mode == Mode.PAN ){
 			MouseCursor.getInstace().setOpenHandCursor();
 		}else{
 			MouseCursor.getInstace().setNormalCursor();
@@ -684,49 +769,5 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 
 	public void setColor(Color color) {
 		this.color = color;
-	}
-
-	public void mouseWheelMoved(MouseWheelEvent e) {
-		
-		boolean refresh = false;
-		
-		int notches = e.getWheelRotation();
-		
-		switch(this.getMode()){
-			
-			case ROTATE:
-				
-				double angle = 5;
-
-		        if (notches < 0) {
-		        	angle = angle * -1;
-		        }
-
-		        Transform.getInstace().setAngle(angle);
-		        
-		        isRotating = true;
-				refresh = true;
-				break;
-				
-			case SCALE:
-				
-				double scale;
-				
-		        if (notches < 0) {
-		        	scale = 0.6;
-		        }else{
-		        	scale = 1.4;
-		        }
-
-				Transform.getInstace().setScale(scale);
-				
-				isScaling = true;
-				refresh = true;
-				break;
-		}
-		
-		if(refresh){
-			refreshRender();
-		}
 	}
 }
