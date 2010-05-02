@@ -4,6 +4,7 @@ import javax.media.opengl.GL;
 
 import org.furb.cg.model.Poligono;
 import org.furb.cg.model.Ponto;
+import org.furb.cg.util.Mode;
 
 /**
  * Classe responsavel pelo desenho de uma boundbox
@@ -43,7 +44,7 @@ public class BoundBox extends Base{
 	 * Metodo utilizado para desenhar a bound
 	 * box dos poligonos selecionados.
 	 */
-	public void drawOnSelctedPoligons(Poligono poligon)
+	public void drawOnSelctedPoligons(Poligono poligon, Mode mode)
 	{
 		gl.glEnable(GL.GL_LINE_STIPPLE);
 		gl.glLineStipple(1, (short) 0x00FF); 
@@ -56,8 +57,12 @@ public class BoundBox extends Base{
 		gl.glEnd();
 		gl.glDisable(GL.GL_LINE_STIPPLE);
 		
+
 		drawCenterPoint(poligon);
-		drawBorderPoints(poligon);
+		
+		if( mode == Mode.MOVE_POINT ) {
+			drawBorderPoints(poligon);
+		}
 	}
 	
 	/**
