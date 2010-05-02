@@ -3,6 +3,7 @@ package org.furb.cg.render;
 import javax.media.opengl.GL;
 
 import org.furb.cg.model.Poligono;
+import org.furb.cg.model.Ponto;
 
 /**
  * Classe responsavel pelo desenho de uma boundbox
@@ -56,6 +57,25 @@ public class BoundBox extends Base{
 		gl.glDisable(GL.GL_LINE_STIPPLE);
 		
 		drawCenterPoint(poligon);
+		drawBorderPoints(poligon);
+	}
+	
+	/**
+	 * Desenha os pontos de borda as poligonos
+	 * @param poligono
+	 */
+	private void drawBorderPoints(Poligono poligono)
+	{
+		gl.glPointSize(5.0f);
+		gl.glColor3f(1.0f, 0.0f, 0.0f);
+		gl.glBegin(GL.GL_POINTS);
+		
+		for( Ponto point : poligono.getPontos() )
+		{
+			gl.glVertex2d(point.getX(), point.getY());
+		}
+
+		gl.glEnd();
 	}
 	
 	private void drawCenterPoint(Poligono poligon)

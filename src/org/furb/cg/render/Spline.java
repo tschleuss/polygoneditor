@@ -46,9 +46,9 @@ public class Spline extends Base{
 			
 			for( int i = 0; i < poligon.getPontos().size() - 3; i+= 3)
 			{
-				for( int j = 1; j <= 10; j++ )
+				for( int j = 1; j <= 36; j++ )
 				{
-					float[] newPoint = Bezier.getInstace().evaluateSplinePoint(poligon, i, ((float)j/10));
+					float[] newPoint = Bezier.getInstace().evaluateSplinePoint(poligon, i, ((float)j/36));
 					
 					gl.glVertex2f(newPoint[0], newPoint[1]);
 				}

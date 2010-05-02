@@ -38,13 +38,13 @@ public class Circle extends org.furb.cg.render.Base {
 		
 		poligon.getPontos().clear();
 		
-		double angle	= 0.0f;
+		double angle		= 0.0f;
 		double vectorY1		= origem.getY() + radius;
 		double vectorX1		= origem.getX();
 		double vectorX;
 		double vectorY;
 
-		for(angle = 0.0f; angle <= (2.0f * PI); angle += 0.01f ) 
+		for(angle = 0.0; angle <= (2.0 * PI); angle += 0.1 ) 
 		{		
 			vectorX = origem.getX() + (radius * sin(angle));
 			vectorY = origem.getY() + (radius * cos(angle));		
@@ -72,7 +72,7 @@ public class Circle extends org.furb.cg.render.Base {
 					poligon.getPontos().add( line.getPontos().get(0) );
 					this.draw(poligon);
 					
-					gl.glBegin(GL.GL_LINE_STRIP);
+					gl.glBegin(GL.GL_LINE_LOOP);
 					
 					for( Ponto point : poligon.getPontos() ) { 
 						gl.glVertex2d( point.getX(), point.getY() );	
@@ -83,5 +83,4 @@ public class Circle extends org.furb.cg.render.Base {
 			}
 		}
 	}
-	
 }
