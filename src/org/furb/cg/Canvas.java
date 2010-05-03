@@ -130,7 +130,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		 gl.glClear(GL.GL_COLOR_BUFFER_BIT);
 		 gl.glMatrixMode(GL.GL_MODELVIEW);
 		 gl.glLoadIdentity();
-			 
+
 		 glu.gluOrtho2D((left * scale) + panX, (right * scale)  + panX, (bottom * scale) + panY, (top * scale) + panY);
 		 gl.glColor3f(0.0f, 0.0f, 0.0f);
 		 
@@ -605,8 +605,8 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 			
 			case PAN: {
 				
-				panX +=  (xValue - pointX);
-				panY += (yValue - pointY) ;
+				panX +=	((xValue - pointX) * 0.50 );
+				panY += ((yValue - pointY) * 0.50 ) ;
 				
 				Base.getInstace().setPanX(panX);
 				Base.getInstace().setPanY(panY);
