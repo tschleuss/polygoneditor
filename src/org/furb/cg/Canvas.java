@@ -167,11 +167,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 			}
 			poligonMode = poligon.getMode();
 			
-			//nao rotaciona circulos
-			if(poligonMode != Mode.CIRCLE) {
-				poligon.setRotate(isRotating);
-			}
-			
+			poligon.setRotate(isRotating);
 			poligon.setScale(isScaling);
 
 			switch(poligonMode)
