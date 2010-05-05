@@ -48,7 +48,8 @@ public class BoundBox extends Base{
 	{
 		gl.glEnable(GL.GL_LINE_STIPPLE);
 		gl.glLineStipple(1, (short) 0x00FF); 
-		gl.glColor3f(0.0f, 1.0f, 0.0f);
+		gl.glColor3f(0.0f, 0.0f, 1.0f);
+		gl.glLineWidth(2.0f);
 		gl.glBegin(GL.GL_LINE_LOOP);
 			gl.glVertex2d(poligon.getMinX(),  poligon.getMinY());
 			gl.glVertex2d(poligon.getMaxX(),  poligon.getMinY());
