@@ -57,8 +57,8 @@ public class BoundBox extends Base{
 			gl.glVertex2d(poligon.getMinX(),  poligon.getMaxY());
 		gl.glEnd();
 		gl.glDisable(GL.GL_LINE_STIPPLE);
+		gl.glLineWidth(1.0f);
 		
-
 		drawCenterPoint(poligon);
 		
 		if( mode == Mode.MOVE_POINT ) {
