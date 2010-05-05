@@ -459,6 +459,29 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 					break;
 				}
 			}
+			
+			//Remove um ponto quando clicado 2x sobre o mesmo
+			if( e.getClickCount() >= 2 )
+			{
+				//Percorre todos os poligonos
+				for( Poligono pol : selecionados )
+				{
+					List<Ponto> pontos = new ArrayList<Ponto>( pol.getPontos() );
+					
+					//Percorre todos os pontos
+					for( Ponto pt : pol.getPontos() )
+					{
+						//Se for o selecionado, remove
+						if( pt.isSelected() ) 
+						{
+							pontos.remove(pt);
+						}
+					}
+					
+					//Seta a nova lista de pontos
+					pol.setPontos( pontos );
+				}
+			}
 		} 
 		else if ( e.getButton() == MouseEvent.BUTTON3 ) 
 		{
